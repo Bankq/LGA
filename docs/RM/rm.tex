@@ -1,0 +1,513 @@
+\documentclass[10pt]{report}
+
+\setcounter{secnumdepth}{1}
+
+\title{\textbf{LGA Language Reference Manual - V0.1}}
+\author{ Hang Qian \\ Pindan Hao \\ Yuanli Dong \\ Tian Xia \\ \texttt{\{hq2124\}@columbia.edu}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\newpage
+
+\chapter{Introduction}
+\label{chap:intro}
+
+LGA, with a unique syntax which makes writing expressive manipulation of graphics and animation very easily. Based on understanding of elements establishing graphics and animation, we provide some basic shapes, motion types and other elements in LGA with which users could easily create their own complex graphics and animation. Compared with other languages like JavaScript, LGA provides users an easier way to manipulate graphics and animation.
+
+In this manual, we provide the comprehensive lexical and syntactic details of LGA, in order to easily generate the front-end part of the compiler. The following of this manual is structured as follows: Chapter \ref{chap:lex} consists of the lexical details of LGA; Chapter \ref{chap:grammar} consists of the syntactic details of LGA; Chapter \ref{chap:sample} gives a brief cample code.
+
+\chapter{Lexical Conventions}
+\label{chap:lex}
+
+
+\section{Tokens}
+\label{sec:token}
+
+There are five classes of tokens: \texttt{identifiers, keywords, literals, operators} and \texttt{separators}. LGA use whitespaces as \texttt{separators}(similar to Python programming language). If the input stream has been separated into tokens up to a given character, the next token is the longest string of characters that could constitute a token.
+
+\subsection{Comments}
+\label{sec:comments}
+
+The character \texttt{\#} introduce a comment and the next \texttt{\\n}(newline) terminates it. Comments do not occur within string or character literals.
+
+\subsection{Identifiers}
+\label{sec:identifiers}
+
+Identifiers(names) must start with \texttt{\_} or any lowercase and uppercase letters. The rest of the string can contain the same characters plus number digits (\texttt{'0' - '9'}).
+
+\subsection{Keywords}
+\label{sec:keywords}
+
+The following identifiers are reserved for the use as keywords, and may not be used otherwise. These include the superset of both JavaScript keywords and reserved words. 
+
+\begin{table}[ch]
+  \centering
+  {\tt
+  \begin{tabular}{l l l l}
+    true       & false   & null    & this \\
+    new        & delete  & typeof  & in  \\
+    instanceof & return  & break   & continue \\
+    if         & else    & switch  & for \\
+    while   & do \\
+  \end{tabular}
+  }
+  \caption{Keywords}
+\end{table}
+\subsection{Numeric Literals}
+\label{sec:numeric_lit}
+
+An integer constant consisting of a sequence of digits is taken to be octal if it begins with 0 (digit zero), decimal otherwise. A floating constant consists of an integer part, a decimal part, a fraction part, an \texttt{e} or \texttt{E}, an optionally signed integer exponent and an optional type suffix, one of \texttt{f, F, l}, or \texttt{L}. The integer and fraction parts both consist of a sequence of digits. Either the integer part, or the fraction part (not both) may be missing; either the decimal point or the \texttt{e} and the exponent (not both) may be missing.
+
+\subsection{Character Literals}
+\label{sec:char_lit}
+
+A character literal is a single character surrounded by single quotes.
+
+\subsection{String Literals}
+\label{sec:str_lit}
+
+A string constant is a sequence of characters surrounded by double quotes. Double quotation marks can be contained in strings surrounded by single quotation marks, and single quotation marks can be contained in strings surrounded by double quotation marks.
+
+
+\section{Operators}
+\label{sec:operators}
+
+\subsection{Computational operators}
+\begin{verbatim}
++, -, *, /, %
+\end{verbatim}
+
+
+\subsection{Compound assignment operators}
+\begin{verbatim}
+-= += /= *= %= ||= &&= ?= <<= >>= &= ^= |=
+\end{verbatim}
+
+\subsection{Logical operators}
+\begin{verbatim}
+&& || & | ^ !
+\end{verbatim}
+
+\subsection{Comparison operators}
+\begin{verbatim}
+== != < > <= >=
+\end{verbatim}
+
+\chapter{Grammar}
+\label{chap:grammar}
+
+\section{Syntax Notation}
+\label{sec:syn_notation}
+
+In the syntax notation used in this manual, syntactic categories are indicated by \texttt{typewriter style} and forms as a capitalized word, as \texttt{Expression}. Literal words, tokens, and characters are in all upper letter words, as \texttt{TERMINATOR}.
+
+\section{Program structure}
+\label{sec:structure}
+
+\subsection{Root}
+
+The \texttt{Root} is the top-level node in the syntax tree. Since we parse bottom-up, all parsing must end here.
+\begin{verbatim}
+Root:
+    NULL
+    Body
+    Block TERMINATOR
+\end{verbatim}
+
+\subsection{Body}
+
+The \texttt{Body} node is any list of statements and expressions.
+\begin{verbatim}
+Body:
+    Line
+    Body TERMINATOR Line
+    Body TERMINATOR
+\end{verbatim}
+
+\subsection{Line}
+
+\begin{verbatim}
+Line:
+    Expression
+    Statement
+\end{verbatim}
+
+\subsection{Statement}
+
+\begin{verbatim}
+Statement:
+    Return
+    Comment
+    STATEMENT
+\end{verbatim}
+
+\subsection{Expression}
+
+\begin{verbatim}
+Expression:
+    Value
+    Invocation
+    Code
+    Operation
+    Assign
+    If
+    While
+    For
+\end{verbatim}
+
+\subsection{Code}
+
+The Code node is the function literal. It's defined by an indented block of \textbf{Block} preceded by a function arrow, with an optional parameter list.
+
+Function is a body of executable code which gets specific number of parameters then process statements inside the function body and return values if needed.  The following is some examples for functions:
+\begin{verbatim}
+sum = (x, y) -> x+y
+getdouble = (x) -> sum x, x
+givemefive = () -> 5
+sayhey = (“hey”) -> “hey”
+\end{verbatim}
+
+In the first case, the function named sum, input parameters are x and y. For the second case which has name of getdouble, it has only one parameter which is x. Function body starts after the arrow operator. In the first case, statements in function body sum up two input parameters. In the second case, it calls sum, the function has been defined previously, and pass the input parameter x to sum. Of course, LGA supports functions without any input parameter like shown in the third case. In that case, no parameter will be defined and there will only be a pair of empty parentheses. Default parameters are also well covered in LGA just like the fourth case. 
+A function could be called with its name followed by a pair of parentheses inside which contains parameters if defined. The second is an example of calling function sum and passing x as parameter.
+At the end of function, the final value will be returned to the caller. For example, in the first case, the returned value will be (x+y). 
+Parameters will be passed to functions by value. Any modification on the parameter inside a function will not put any influence on the original object/variable
+
+\begin{verbatim}
+Code:
+    PARAM_START ParamList PARAM_END FuncGlyph Bock
+    FuncGlyph Block
+\end{verbatim}
+
+\subsection{Value}
+\texttt{Value} literal is the types of things that can be treated as values, which means they can be assigned to, invoked as functions, indexed into, etc.
+
+\begin{verbatim}
+Value:
+    Assignable
+    Literal
+    Parenthetical
+\end{verbatim}
+
+\subsection{Block}
+\label{sec:block}
+
+LGA use whitespaces as levels of identation. A \texttt{Block} is an indented block of expressions.
+\begin{verbatim}
+Block:
+    INDENT OUTDENT
+    INDENT Body OUTDENT
+\end{verbatim}
+
+\section{Identifiers,  Numerics and Literals}
+
+\subsection{Identifier}
+A literal identifier, which is a variable name or property.
+\begin{verbatim}
+Identifier:
+     IDENTIFIER
+\end{verbatim}
+
+\subsection{AlphaNumeric}
+\texttt{AlphaNumeric} is separated from the other \texttt{Literal} matchers because they can slaso serve as keys in object literals.
+\begin{verbatim}
+AlphaNumeric:
+    NUMBER
+    STRING
+\end{verbatim}
+
+\subsection{Literal}
+
+All of immediate values. Generally these are fully campatible with our target language, which means can be printed
+\begin{verbatim}
+Literal:
+    AlphaNumeric
+    NULL
+    BOOL
+\end{verbatim}
+
+
+\section{Specific Expressions}
+
+\subsection{Assign}
+Assignment of a variable, property, or index to a value
+\begin{verbatim}
+Assign:
+    Assignable = Expression
+    Assignable = TERMINATOR Expression
+    Assignable = INDENT Expression OUTDENT
+\end{verbatim}
+
+
+\subsection{Assignable}
+This catagory consists of everything that can be assigned to.
+\begin{verbatim}
+Assignable:
+    Identifier
+    Array
+    Object
+\end{verbatim}
+
+
+\subsection{AssignObj}
+
+Assignment when it happens within an object literal. The difference from the ordinary \texttt{Assign} is that these allow numbers and strings as keys. And we use \texttt{:} as assign operator here.
+\begin{verbatim}
+AssignObj:
+    ObjAssignable
+    ObjAssignable : Expression
+    ObjAssignable : INDENT Expression OUTDENT
+    Comment
+\end{verbatim}
+
+\subsection{ObjAssignment}
+\begin{verbatim}
+ObjAssignable:
+    Identifiers
+    AlphaNumeric
+\end{verbatim}
+
+\subsection{Array}
+
+\begin{verbatim}
+Array:
+    [ ]
+    [ ArgList ]
+\end{verbatim}
+
+\subsection{Object}
+
+In LGA, an object literal is simply a list of assignments.
+\begin{verbatim}
+Object:
+    { AssignList OptComma }
+\end{verbatim}
+
+
+\subsection{AssignList}
+
+Assignment of properties within an object literal can be separated by comma, as in Javascript, or simply by newline
+\begin{verbatim}
+AssignList:
+    NULL
+    AssignObj
+    AssignObj , AssignObj
+    AssignList OptComma TERMINATOR AssignObj
+    AssignList OptComma INDENT AssignList OptComma OUTDENT
+\end{verbatim}
+
+
+\subsection{OptComma}
+An Optional, trailing comma.
+\begin{verbatim}
+OptComma:
+    NULL
+    ,
+\end{verbatim}
+
+\subsection{Return}
+
+In LGA, functions will always return their final values even though when we don’t actually use any return statement or operator, as following: \texttt{sqr = (x) -> x*x}. The value of \texttt{x*x} will be returned to the caller as the final value of the function. As shown, flowing off the end of function then the final value will be returned.
+Of course, return statement with which a function can return to the caller is also provided. Examples of using return statement are as following:
+\begin{verbatim}
+	return
+	return ( expression )
+\end{verbatim}
+
+The first sample dose not return any value but just terminal the process. The second sample returns value of the expression to the caller. With a return statement, logical flow of a function could be easily controlled. When some specific cases are captured, function could be terminated with or without returning a value.
+
+\begin{verbatim}
+Return:
+    RETURN Expression
+    RETURN
+\end{verbatim}
+
+
+\subsection{Comment}
+LGA only support inline comment, starting with a \texttt{\#} and terminates with a newline
+\begin{verbatim}
+Comment:
+    COMMENT
+\end{verbatim}
+
+\subsection{Invocation}
+Ordinary function invocation.
+
+\begin{verbatim}
+Invocation:
+    Value Arguments
+    Invocation Arguments
+\end{verbatim}
+
+\subsection{Arguments}
+
+The list of arguments to a function call.
+\begin{verbatim}
+Arguments:
+    CALL_START CALL_END
+    CALL_START ArgList OptComma CALL_END
+\end{verbatim}
+
+\subsection{ArgList}
+
+The \texttt{ArgList} is both the list of objects passed into a function call, as well as the contents of an array literal.
+\begin{verbatim}
+ArgList:
+    Expression
+    ArgList , Expression
+    ArgList OptComma TERMINATOR Expression
+    INDENT ArgList OptComma OUTDENT
+    ArgList OptComma INDENT ArgList OptComma OUTDENT
+\end{verbatim}
+
+\subsection{FuncGlyph}
+
+\begin{verbatim}
+FuncGlyph:
+    ->
+\end{verbatim}
+
+\subsection{ParamList}
+The list of parameters that a function accepts can be of any length
+\begin{verbatim}
+ParamList:
+    NULL
+    Param
+    ParamList , Param
+    ParamList OptComma TERMINATOR Param
+    ParamList OptComma INDENT ParamList OptComma OUTDENT
+\end{verbatim}
+
+\subsection{Param}
+\begin{verbatim}
+Param:
+    ParamVar
+    ParamVar = Expression
+\end{verbatim}
+
+\begin{verbatim}
+ParamVar:
+    Identifier
+    Array
+    Object
+\end{verbatim}
+
+\subsection{Index}
+Indexing into an object or array using bracket notation.
+\begin{verbatim}
+Index:
+    INDEX_START IndexValue INDEX_END
+\end{verbatim}
+
+\begin{verbatim}
+IndexValue:
+    Expression
+\end{verbatim}
+
+
+\subsection{Parenthetical}
+
+\begin{verbatim}
+Parenthetical:
+    ( Body )
+    ( INDENT Body OUTDENT )
+\end{verbatim}
+
+\section{Control Flow}
+
+LGA supports common \texttt{If}, \texttt{While} and \texttt{For} loop as control flows.
+
+
+\subsection{If}
+Addition to regular if block, LGA supports \texttt{Post-If} style. For example \texttt{x = 2 if y > 3}.
+\begin{verbatim}
+If:
+    IfBlock
+    IfBlock ELSE Block
+    statement POST_IF Expression
+    Expression POST_IF Expression
+\end{verbatim}
+
+\begin{verbatim}
+IfBlock:
+    IF Expression Block
+    IfBlock ELSE IF Expression Block
+\end{verbatim}
+
+\subsection{While}
+\begin{verbatim}
+While:
+    WhileSource Block
+    Statement WhileSource
+    Expression WhileSource
+\end{verbatim}
+
+\begin{verbatim}
+WhileSource:
+    WHILE Expression
+\end{verbatim}
+
+
+\subsection{For}
+\begin{verbatim}
+For:
+    ForBody Block
+\end{verbatim}
+
+\begin{verbatim}
+ForBody:
+    ForStart ForSource
+\end{verbatim}
+
+\begin{verbatim}
+ForStart:
+    FOR ForVar
+\end{verbatim}
+
+\begin{verbatim}
+ForVar:
+    ForValue
+    ForValue, ForValue
+\end{verbatim}
+
+\begin{verbatim}
+ForValue:
+    Identifier
+    Array
+    Object
+\end{verbatim}
+
+\begin{verbatim}
+ForSource:
+    FORIN Expression 
+\end{verbatim}
+
+\chapter{Sample Code}
+\label{chap:sample}
+
+\begin{verbatim}
+move_forward = (l) ->
+                 if @pos && @vec
+                       a = math.atan(@vec[0], @vec[1])
+                       @pos[0] += math.cos(angle) * l
+                       @pos[1] += math.sin(angle) * l
+                 return
+
+square = {
+            run : circle
+            pos : [2, 5]
+            vec : [1, 1]
+            delay : 5
+         }
+
+OBJ = {square}
+OBJ.start()
+
+\end{verbatim}
+
+
+\end{document}
+
+
