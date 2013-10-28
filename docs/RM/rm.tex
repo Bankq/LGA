@@ -3,7 +3,7 @@
 \setcounter{secnumdepth}{1}
 
 \title{\textbf{LGA Language Reference Manual - V0.1}}
-\author{ Hang Qian \\ Pindan Hao \\ Yuanli Dong \\ Tian Xia \\ \texttt{\{hq2124\}@columbia.edu}}
+\author{ Hang Qian \\ Pindan Hao \\ Yuanli Dong \\ Tian Xia \\ \texttt{\{hq2124, pd2389, yd2270, tx2126\}@columbia.edu}}
 \date{\today}
 
 \begin{document}
@@ -192,6 +192,7 @@ Value:
     Assignable
     Literal
     Parenthetical
+    This
 \end{verbatim}
 
 \subsection{Block}
@@ -231,6 +232,20 @@ Literal:
     BOOL
 \end{verbatim}
 
+\subsection{This}
+
+\begin{verbatim}
+This:
+    THIS
+    @
+\end{verbatim}
+
+\texttt{ThisProperty} is a reference to a property on this
+\begin{verbatim}
+ThisProperty:
+    @ Identifier
+\end{verbatim}
+
 
 \section{Specific Expressions}
 
@@ -248,9 +263,15 @@ Assign:
 This catagory consists of everything that can be assigned to.
 \begin{verbatim}
 Assignable:
-    Identifier
+    SimpleAssignable
     Array
     Object
+\end{verbatim}
+
+\begin{verbatim}
+SimpleAssignable:
+    Identifier
+    ThisProperty
 \end{verbatim}
 
 
@@ -270,6 +291,7 @@ AssignObj:
 ObjAssignable:
     Identifiers
     AlphaNumeric
+    ThisProperty
 \end{verbatim}
 
 \subsection{Array}
@@ -395,6 +417,7 @@ ParamVar:
     Identifier
     Array
     Object
+    ThisProperty
 \end{verbatim}
 
 \subsection{Index}
