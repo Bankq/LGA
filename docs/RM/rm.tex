@@ -252,7 +252,7 @@ LGA supports common \texttt{If}, \texttt{While} and \texttt{For} loop as control
 
 
 \subsection{If}
-Addition to regular if block, LGA supports \texttt{Post-If} style. For example \texttt{x = 2 if y > 3}.
+Addition to regular if block, LGA supports \texttt{Post-If} style. For example \texttt{x = 2 if y > 3}. Code in block will be executed if evaluation result of expression is boolean true.
 \begin{verbatim}
 If:
     IfBlock
@@ -268,6 +268,7 @@ IfBlock:
 \end{verbatim}
 
 \subsection{While}
+Similar to if block, \texttt{Post-While} style is support in LGA. For example \texttt{x = x * 2 while x < 100}. Code in block will be executed repeatedly if evaluation result of expression is boolean true.
 \begin{verbatim}
 While:
     WhileSource Block
@@ -282,6 +283,7 @@ WhileSource:
 
 
 \subsection{For}
+For block iterate through \texttt{ForValue}. For example, in \texttt{for x in [1, 2 ,3, 4]}, x is repeated assigned as elements in the array. To iterate an \texttt{Object}, use two \texttt{ForValue}s separated by comma.
 \begin{verbatim}
 For:
     ForBody Block
