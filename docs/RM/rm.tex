@@ -3,7 +3,7 @@
 \setcounter{secnumdepth}{1}
 
 \title{\textbf{LGA Language Reference Manual - V0.1}}
-\author{ Hang Qian \\ Pindan Hao \\ Yuanli Dong \\ Tian Xia \\ \texttt{\{hq2124, pd2389, yd2270, tx2126\}@columbia.edu}}
+\author{ Hang Qian \\ Pindan Hao \\ Yuanli Dong \\ Tian Xia \\ \texttt{\{hq2124, ph2389, yd2270, tx2126\}@columbia.edu}}
 \date{\today}
 
 \begin{document}
@@ -246,8 +246,77 @@ ThisProperty:
     @ Identifier
 \end{verbatim}
 
+\section{Control Flow}
 
-\section{Specific Expressions}
+LGA supports common \texttt{If}, \texttt{While} and \texttt{For} loop as control flows.
+
+
+\subsection{If}
+Addition to regular if block, LGA supports \texttt{Post-If} style. For example \texttt{x = 2 if y > 3}.
+\begin{verbatim}
+If:
+    IfBlock
+    IfBlock ELSE Block
+    statement POST_IF Expression
+    Expression POST_IF Expression
+\end{verbatim}
+
+\begin{verbatim}
+IfBlock:
+    IF Expression Block
+    IfBlock ELSE IF Expression Block
+\end{verbatim}
+
+\subsection{While}
+\begin{verbatim}
+While:
+    WhileSource Block
+    Statement WhileSource
+    Expression WhileSource
+\end{verbatim}
+
+\begin{verbatim}
+WhileSource:
+    WHILE Expression
+\end{verbatim}
+
+
+\subsection{For}
+\begin{verbatim}
+For:
+    ForBody Block
+\end{verbatim}
+
+\begin{verbatim}
+ForBody:
+    ForStart ForSource
+\end{verbatim}
+
+\begin{verbatim}
+ForStart:
+    FOR ForVar
+\end{verbatim}
+
+\begin{verbatim}
+ForVar:
+    ForValue
+    ForValue, ForValue
+\end{verbatim}
+
+\begin{verbatim}
+ForValue:
+    Identifier
+    Array
+    Object
+\end{verbatim}
+
+\begin{verbatim}
+ForSource:
+    FORIN Expression 
+\end{verbatim}
+
+
+\section{Others}
 
 \subsection{Assign}
 Assignment of a variable, property, or index to a value
@@ -441,74 +510,7 @@ Parenthetical:
     ( INDENT Body OUTDENT )
 \end{verbatim}
 
-\section{Control Flow}
 
-LGA supports common \texttt{If}, \texttt{While} and \texttt{For} loop as control flows.
-
-
-\subsection{If}
-Addition to regular if block, LGA supports \texttt{Post-If} style. For example \texttt{x = 2 if y > 3}.
-\begin{verbatim}
-If:
-    IfBlock
-    IfBlock ELSE Block
-    statement POST_IF Expression
-    Expression POST_IF Expression
-\end{verbatim}
-
-\begin{verbatim}
-IfBlock:
-    IF Expression Block
-    IfBlock ELSE IF Expression Block
-\end{verbatim}
-
-\subsection{While}
-\begin{verbatim}
-While:
-    WhileSource Block
-    Statement WhileSource
-    Expression WhileSource
-\end{verbatim}
-
-\begin{verbatim}
-WhileSource:
-    WHILE Expression
-\end{verbatim}
-
-
-\subsection{For}
-\begin{verbatim}
-For:
-    ForBody Block
-\end{verbatim}
-
-\begin{verbatim}
-ForBody:
-    ForStart ForSource
-\end{verbatim}
-
-\begin{verbatim}
-ForStart:
-    FOR ForVar
-\end{verbatim}
-
-\begin{verbatim}
-ForVar:
-    ForValue
-    ForValue, ForValue
-\end{verbatim}
-
-\begin{verbatim}
-ForValue:
-    Identifier
-    Array
-    Object
-\end{verbatim}
-
-\begin{verbatim}
-ForSource:
-    FORIN Expression 
-\end{verbatim}
 
 \chapter{Sample Code}
 \label{chap:sample}
