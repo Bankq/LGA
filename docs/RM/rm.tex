@@ -15,7 +15,9 @@
 \chapter{Introduction}
 \label{chap:intro}
 
-LGA, with a unique syntax which makes writing expressive manipulation of graphics and animation very easily. Based on understanding of elements establishing graphics and animation, we provide some basic shapes, motion types and other elements in LGA with which users could easily create their own complex graphics and animation. Compared with other languages like JavaScript, LGA provides users an easier way to manipulate graphics and animation.
+LGA, with a unique syntax, is designed to make writing expressive manipulation of graphics and animation very easily. By targeting on Javacript, LGA can be viewed as an alternative to handle web graphical and animation task. 
+
+The syntax of LGA is inspired by R\footnote{R-Project: \texttt{http://www.r-project.org/}}, Coffeescript\footnote{Coffeescript: \texttt{http://coffeescript.org/}} and Python\footnote{Python: \texttt{http://python.org/}}. It is designed to be minimalized and expressive, just focus on the target task. Compare to the target language Javascript, LGA provides a more succint, expressive and programmer-friendly syntax and core functions.
 
 In this manual, we provide the comprehensive lexical and syntactic details of LGA, in order to easily generate the front-end part of the compiler. The following of this manual is structured as follows: Chapter \ref{chap:lex} consists of the lexical details of LGA; Chapter \ref{chap:grammar} consists of the syntactic details of LGA; Chapter \ref{chap:sample} gives a brief cample code.
 
@@ -31,7 +33,7 @@ There are five classes of tokens: \texttt{identifiers, keywords, literals, opera
 \subsection{Comments}
 \label{sec:comments}
 
-The character \texttt{\#} introduce a comment and the next \texttt{\\n}(newline) terminates it. Comments do not occur within string or character literals.
+The character \texttt{\#} introduce a comment and the next \texttt{\char`\\ n}(newline) terminates it. Comments do not occur within string or character literals.
 
 \subsection{Identifiers}
 \label{sec:identifiers}
@@ -52,6 +54,7 @@ The following identifiers are reserved for the use as keywords, and may not be u
     instanceof & return  & break   & continue \\
     if         & else    & switch  & for \\
     while   & do \\
+
   \end{tabular}
   }
   \caption{Keywords}
@@ -77,7 +80,7 @@ A string constant is a sequence of characters surrounded by double quotes. Doubl
 
 \subsection{Computational operators}
 \begin{verbatim}
-+, -, *, /, %
++ - * / %
 \end{verbatim}
 
 
