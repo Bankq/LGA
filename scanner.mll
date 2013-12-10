@@ -2,6 +2,7 @@ let letter = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
 (* let punc = ['~' '!' '@' '#' '$' '%' '^' '&' '*' '(' ')' '-' '+' '=' ',' '.' '?' '/' '<' '>' ':' '''  ';' '{' '}' '[' ']' '|' ' ']
 *)
+let id = ('_'|letter) (letter|digit|'_')*
 let exp = 'e'('+'|'-')?['0'-'9']+
 let num = '-'? (digit)+ ('.'? (digit)* exp?|exp)
 
@@ -42,7 +43,8 @@ rule token = parse
 | "rules"  { RULES }
 | "string" { STRING }
 | "while"  { WHILE }
-| num as lxm { LITERAL(int_of_string lxm) }
+| id as lxm { ID(lxm) }
+| num as lxm { LITERAL(float_of_string lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("Illegal character: " ^ Char.escaped char)) }
 
