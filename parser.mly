@@ -8,4 +8,4 @@
 %type <Ast.program> program
 
 expr:
-	| expr ASSIGN expr	{ Binop($1, ASSIGN, $2) }
+	| expr ASSIGN expr	{ Binop($1, ASSIGN, $3) }
