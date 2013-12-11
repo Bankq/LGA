@@ -12,6 +12,6 @@
 
 %%
 expr:
-    | expr ASSIGN expr { Assign($1, $3) }
+    | expr ASSIGN expr { Assign($1, $3)}
 	| NUM			{ Num($1) }
 	| ID			{ Id($1) }
