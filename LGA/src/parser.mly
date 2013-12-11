@@ -1,5 +1,7 @@
 %{open Ast %}
 
+%token INDENT
+%token DEDENT
 %token ASSIGN
 %token EOF
 %token <string> ID
