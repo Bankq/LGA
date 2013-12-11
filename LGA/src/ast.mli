@@ -1,4 +1,5 @@
 type expr = 
-	| Assign of string * expr
-	| Id of string
-	| Num of float
+  | Assign of expr * expr
+  | Id of string
+  | Num of float
+

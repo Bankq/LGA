@@ -1,4 +1,4 @@
-%{open AST %}
+%{open Ast %}
 
 %token ASSIGN
 %token EOF
@@ -7,10 +7,11 @@
 
 %right ASSIGN
 
-%start program
-%type <Ast.program> program
+%start expr
+%type <Ast.expr> expr
 
+%%
 expr:
-	| NUM			{ NUM($1) }
-	| ID			{ ID($1) }
-	| expr ASSIGN expr	{ Binop($1, ASSIGN, $3) }
+    | expr ASSIGN expr { Assign($1, $3) }
+	| NUM			{ Num($1) }
+	| ID			{ Id($1) }
