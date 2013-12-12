@@ -1,11 +1,11 @@
 {
-    open Parser
-    let indentstack = Stack.create()
+  open Parser
+  open Utils
+  let _stack = Stack.create()
 }
 
-
-let linestart = ^(' '*|'\t'*)
-let spacetab = ' '*|'\t'*
+let spacetab = [' ' '\t']*
+let newline = ['\r' '\n']+
 let letter = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
 let id = ('_'|letter) (letter|digit|'_')*
@@ -13,53 +13,37 @@ let exp = 'e'('+'|'-')?['0'-'9']+
 let num = '-'? (digit)+ ('.'? (digit)* exp?|exp)
 
 rule token = parse
-    
-    linestart as lxm               { indent (Lexing.from_string lxm) }
-    | '#'                   { comment lexbuf }
-    | '='                   { ASSIGN }
-    | id as lxm             { ID(lxm) }
-    | num as lxm            { NUM(float_of_string lxm) }
-    | ['\r' '\n' ' ' '\t']  { token lexbuf }
-    | eof                   { EOF }
-    | _ as char             { raise (Failure("SCANNER: illegal input"^Char.escaped char)) }
-
+        | newline           { indent lexbuf }
+        | [' ' '\t']        { token lexbuf }
+        | '#'               { comment lexbuf }
+        | '='               { ASSIGN }
+        | id as lxm         { ID(lxm) }
+        | num as lxm        { NUM(float_of_string lxm) }
+        | eof               { EOF }
+        | _ as char         { raise (Failure("SCANNER: illegal input"^Char.escaped char)) }
+                       
 and indent = parse
-    | spacetab as s
-      {
-        if(Stack.is_empty indentstack) then (
-            print_endline "lalala";
-            if (String.length s) > 0 then begin
-                Stack.push (String.length s) indentstack;
-                INDENT
-            end
-            else
-                token lexbuf
-        )
-        else
-        if String.length s = (Stack.top indentstack) then begin
-        
-            Stack.pop indentstack;
-            token lexbuf
-        end
-        else if String.length s > (Stack.top indentstack) then begin
-                
-                    Stack.push (String.length s) indentstack; 
-                    INDENT
-             end
-             else (
-                Stack.pop indentstack;
-                if( String.length s > (Stack.top indentstack) ) then begin
-                    raise (Failure("SCANNER: illegal indent")) 
-                end
-                else 
-                    lexbuf = Lexing.from_string ("^" ^ (Lexing.lexeme lexbuf));
-                    DEDENT
-                )
-                
-             
-         }
-        
+           | spacetab as s {
+                             let len = (String.length s) in
+                             let top_pos = (Stack.top _stack) in
+                             if len > top_pos then
+                               begin
+                                 Stack.push len _stack;
+                                 INDENT
+                               end
+                             else if len = top_pos then token lexbuf
+                             else
+                               let _count = (Utils.dedent_count len _stack) in
+                               if _count = -1 then raise (Failure("SCANNER: wrong indent"))
+                               else DEDENT_COUNT(_count)
+                           }
+           | _ as c {
+                      token lexbuf
+                    }
 and comment = parse
-    '\n' { token lexbuf }
-    | _    { comment lexbuf }
+                '\n' { token lexbuf }
+            | _    { comment lexbuf }
 
+{
+  Stack.push 0 _stack
+}

@@ -6,11 +6,14 @@ PARSER = parser
 SCANNER = scanner
 AST = ast
 LGA = lga
+UTILS = utils
 
 
-all: asto parsero scannero lgao
-	$(CC) $(PARSER).cmo $(SCANNER).cmo $(LGA).cmo -o $(LGA)
-scannero: scanner
+all: asto parsero scannero lgao utilso
+	$(CC) $(PARSER).cmo $(UTILS).cmo $(SCANNER).cmo $(LGA).cmo -o $(LGA)
+utilso: parsero
+	$(CC) -c $(UTILS).ml
+scannero: scanner utilso
 	$(CC) -c $(SCANNER).ml
 scanner:
 	$(LEX) $(SCANNER).mll

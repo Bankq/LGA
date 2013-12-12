@@ -2,6 +2,7 @@
 
 %token INDENT
 %token DEDENT
+%token <int> DEDENT_COUNT
 %token ASSIGN
 %token EOF
 %token <string> ID
