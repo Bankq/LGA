@@ -37,9 +37,6 @@ and indent = parse
                                if _count = -1 then raise (Failure("SCANNER: wrong indent"))
                                else DEDENT_COUNT(_count)
                            }
-           | _ as c {
-                      token lexbuf
-                    }
 and comment = parse
                 '\n' { token lexbuf }
             | _    { comment lexbuf }
