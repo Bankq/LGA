@@ -1,12 +1,10 @@
 CC = ocamlc
 SRC = ../src
 
-test_scanner: scanner utils
+test_scanner: scanner
 	$(CC) -I $(SRC) -c test_scanner.ml
-	$(CC) -I $(SRC) parser.cmo scanner.cmo utils.cmo test_scanner.cmo -o test_scanner
-utils:
-	$(CC) -I $(SRC) -c utils.ml
+	$(CC) -I $(SRC) parser.cmo utils.cmo scanner.cmo test_scanner.cmo -o test_scanner
 scanner:
 	make -C $(SRC)
 clean:
-	rm -rf *.cmi *.cmo utils.mli test_scanner
+	rm -rf *.cmi *.cmo test_scanner
