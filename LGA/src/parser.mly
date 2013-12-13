@@ -45,7 +45,7 @@ statement:
 	| STATEMENT 							{ Literal($1) }
 	| IF expression block ELSE block 		{ If($2, $3, $5) }
 	| IF expression block 					{ If($2, $3, []) }
-	| WHILE expression block                { While{$2, $3} }
+	| WHILE expression block                { While($2, $3) }
 	| FOR identifier FORIN array block		{ For($2, $4, $5) }
 	| LPAREN paramList RPAREN ARROW block 	{ Code($2, $5) }
 
