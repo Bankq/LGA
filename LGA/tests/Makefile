@@ -1,6 +1,7 @@
 CC = ocamlc
 SRC = ../src
-.PHONY: test_scanner scanner test
+
+.PHONY: scanner test clean
 
 test_scanner: scanner
 	$(CC) -I $(SRC) -c test_scanner.ml
