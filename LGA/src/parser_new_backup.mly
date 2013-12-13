@@ -79,6 +79,7 @@ code:
 value:
 	| assignable { $1 }
 	| literal { $1 }
+	| parenthetical { Value($1) }
  	| thisProperty { $1 }
 
 assign:
@@ -120,22 +121,6 @@ assignList:
 	| assignList optComma TERMINATOR assignObj { List.append $1 $4 }
 	| assignList optComma INDENT assignList optComma OUTDENT { List.append $1 $4 }
 
-
-/*	==================================================================================================	*/
-
-obj:
-	| LBRACE /* nothing */ RBRACE 								{ [] } 
-	| LBRACE assignObj RBRACE 									{ [$1] }
-	| LBRACE assignObj COMMA assignObj RBRACE 					{ List.append [$1] [$3] }
-	| LBRACE assignList optComma TERMINATOR assignObj RBRACE 					{ List.append $1 $4 }
-	| LBRACE assignList optComma INDENT assignList optComma OUTDENT RBRACE 	{ List.append $1 $4 }
-
-
-/*	==================================================================================================	*/
-
-
-
-
 invocation:
 	| value arguments	{ Invocation($1, $2) }
 
@@ -173,11 +158,9 @@ index:
 indexValue:
 	| expression { $1 }
 
-/*
 parenthetical:
 	| LPAREN body RPAREN { Parenthetical($2) }
 	| LPAREN INDENT body OUTDENT RPAREN { Parenthetical($3) }
-*/
 
 array:
   | LBK RBK { Array([]) }
