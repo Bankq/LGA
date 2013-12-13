@@ -47,13 +47,28 @@ Expression:
 	| While { $1 }
 	| For { $1 }
 
+Operation:
+	| Expression PLUS Expression		{ Binop($1, Plus,$3) }
+	| Expression MINUS Expression		{ Binop($1, Minus, $3) }
+	| Expression TIMES Expression		{ Binop($1, Times, $3) }
+	| Expression DIVIDE Expression		{ Binop($1, Divide, $3)}
+	| Expression EQ	Expression		{ Binop($1, Eq, $3) }
+	| Expression NEQ Expression		{ Binop($1, Neq, $3) }
+	| Expression MOD Expression		{ Binop($1, Mod, $3) }
+	| Expression AND Expression		{ Binop($1, And, $3) }
+	| Expression OR Expression		{ Binop($1, OR, $3) }
+	| Expression LT Expression		{ Binop($1, Less, $3) }
+	| Expression LEQ Expression		{ Binop($1, Leq, $3) }
+	| Expression GT Expression		{ Binop($1, Greater, $3) }
+	| Expression GEQ Expression		{ Binop($1, Geq, $3) }
+	| NOT Expression			{ Not($2) }
+
 Code:
-	| PARAM_START ParamList PARAM_END ARROW Bock { Code($2, $5) }
-	| ARROW Block { Code([], $2) }
+	| LPAREN ParamList RPAREN ARROW Block { Code($2, $5) }
 
 Value:
 	| Assignable { $1 }
-	| Literal { Value($1) }
+	| Literal { $1 }
 	| Parenthetical { Value($1) }
  	| This { $1 }
 
@@ -62,14 +77,16 @@ Assign:
 	| Assignable ASSIGN TERMINATOR Expression     { Assign ($1, $4) }
 	| Assignable ASSIGN INDENT Expression OUTDENT { Assign ($1, $4) }
 
-Assignable:
+/*Assignable:
 	| SimpleAssignable { $1 }
 	| Array { Value($1) }
 	| Object { Value($1) }
+ */
 
-SimpleAssignable:
+Assignable:
 	| Identifier { $1 }
 	| ThisProperty { $1 }
+	| Value DOT Identifier	{ Assignable($1, $3) }
 
 AssignObj:
 	| ObjAssignable { $1 }
@@ -78,36 +95,39 @@ AssignObj:
 	| Comment { $1 }
 	
 ObjAssignable:
-	|	Identifiers { $1 }
-	| AlphaNumeric { $1 }
+	| Identifiers { $1 }
 	| ThisProperty { $1 }
 	
 Object:
   | LBRACE AssignList OptComma RBRACE { Object($2) }
 
+OptComma:
+	| /* nothing */	{ }
+	| COMMA		{ $1 }
+
 AssignList:
-	| NULL { [] } 
+	| /* nothing */ { [] } 
 	| AssignObj { [$1] }
-	| AssignObj COMMA AssignObj { List.append $1 $3 }
+	| AssignObj COMMA AssignObj { List.append [$1] [$3] }
 	| AssignList OptComma TERMINATOR AssignObj { List.append $1 $4 }
 	| AssignList OptComma INDENT AssignList OptComma OUTDENT { List.append $1 $4 }
 
 Invocation:
-	| Value Arguments { Invocation($1, $2) }
+	| Value Arguments	{ Invocation($1) }
 
 Arguments:
-	| CALL_START CALL_END { [] }
-	| CALL_START ArgList OptComma CALL_END { $2 }
+	| LPAREN RPAREN { [] }
+	| LPAREN ArgList OptComma RPAREN { $2 }
 
 ArgList:
 	| Expression { $1 } 
 	| ArgList COMMA Expression { List.append $1 $3 }
 	| ArgList OptComma TERMINATOR Expression { List.append $1 $4 }
-	| INDENT ArgList OptComma OUTDENT {$ 2}
+	| INDENT ArgList OptComma OUTDENT { $2 }
 	| ArgList OptComma INDENT ArgList OptComma OUTDENT { List.append $1 $4 }
 
 ParamList:
-	| NULL
+	| /* nothing */		{ [] }
 	| Param { $1 }
 	| ParamList COMMA Param { List.append $1 $3 }
 	| ParamList OptComma TERMINATOR Param { List.append $1 $4 }
@@ -124,7 +144,7 @@ ParamVar:
 	| ThisProperty { $1 }
 
 Index:
-	| INDEX_START IndexValue INDEX_END { $2 }
+	| LBK IndexValue RBK { $2 }
 
 IndexValue:
 	| Expression { $1 }
@@ -157,7 +177,7 @@ Identifier:
  *		STRING
  */
 
-Alphanum:
+AlphaNumeric:
 	| NUM		{ Num($1) }
 	| STRING	{ String($1) }
 
@@ -171,7 +191,7 @@ Alphanum:
  */
 
 Literal:
-	| alphanum	{ $1 }
+	| AlphaNumeric	{ $1 }
 	| NULL		{ NULL() }
 	| BOOL		{ Boolean{$1} }
 
@@ -182,8 +202,8 @@ Literal:
  *		@
  */
 
-Thisproperty:
-	| THIS identifier	{ ThisPro($2) }
+ThisProperty:
+	| THIS identifier	{ ThisProperty($2) }
 
 
 /* If */
@@ -227,7 +247,7 @@ While:
  */
 
 WhileSource:
-	WHILE Expression		{ WhileSource($1) }
+	WHILE Expression		{ WhileSource($2) }
 
 /* For */
 /* description 
@@ -255,6 +275,3 @@ ForValue:
 
 ForSource:
 	| FORIN Expression		{ ForSource($2) }
-
-
-	
