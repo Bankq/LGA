@@ -1,7 +1,7 @@
 {
   open Parser
   open Utils
-  let _indent_stack = Stack.create()
+  let _stack = Stack.create()
 }
 
 let punc = ['~' '`' '!' '@' '#' '$' '%' '^' '&' '*' '(' ')' '-' '+' '=' ',' '.' '?' '/' '<' '>' ':' '''  ';' '{' '}' '[' ']' '|' ' ']
@@ -24,15 +24,28 @@ rule token = parse
 		| ')'      			{ RPAREN }
 		| '{'     			{ LBRACE }
 		| '}'      			{ RBRACE }
-		| '['				{ LBRACKET }
-		| ']'				{ LBRACKET }
+		| '['				{ LBK }
+		| ']'				{ RBK }
 		| ';'      			{ SEMI }
 		| ','      			{ COMMA }
 		| ':'      			{ COLON }
 		| '='      			{ ASSIGN }
+		| '+'				{ PLUS }
+		| '-'				{ MINUS }
+		| '*'				{ TIMES }
+		| '/'				{ DIVIDE }
+		| '%'				{ MOD }
+		| '+'				{ PLUS }
 		| '<'      			{ LT }
 		| '>'      			{ GT }
 		| '.'				{ DOT }
+		| '!'				{ NOT }
+		| "=="				{ EQ }
+		| "!="				{ NEQ }
+		| "<="				{ LEQ }
+		| ">="				{ GEQ }
+		| "&&"				{ AND }
+		| "||"				{ OR }
 		| "->"     			{ ARROW }
 		| "false"  			{ BOOL(false) }
 		| "true"   			{ BOOL(true) }
@@ -41,9 +54,12 @@ rule token = parse
 		| "return" 			{ RETURN } 
 		| "while"  			{ WHILE }
 		| "for"  			{ FOR }
-		| id as lxm         { ID(lxm) }
+		| "in"				{ FORIN }
+		| "break"			{ STATEMENT("break") }
+		| "continue"		{ STATEMENT("continue") }
+		| id as lxm         { IDENTIFIER(lxm) }
 		| num as lxm        { NUM(float_of_string lxm) }
-		| string as lxm	{ STRING(lxm) }
+		| string as lxm		{ STRING(lxm) }
 		| eof               { EOF }
 		| _ as char         { raise (Failure("SCANNER: illegal input"^Char.escaped char)) }
 					   
@@ -59,10 +75,11 @@ and indent = parse
 			   end
 			 else if len = top_pos then token lexbuf
 			 else
-			   let _count = (Utils.dedent_count len _stack) in
+			   let _count = (Utils.outdent_count len _stack) in
 			   if _count = -1 then raise (Failure("SCANNER: wrong indent"))
-			   else DEDENT_COUNT(_count)
+			   else OUTDENT_COUNT(_count)
 			}
+
 and comment = parse
 				'\n' { token lexbuf }
 			| _    { comment lexbuf }
