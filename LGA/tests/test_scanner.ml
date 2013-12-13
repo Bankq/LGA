@@ -44,7 +44,7 @@ let test_dir indir outdir =
   let print r = 
     if (snd r) then Printf.printf "%s Pass\n" (fst r)
     else Printf.printf "%s Fail\n" (fst r) in
-  List.map print (List.combine infile_list result_list);
+  ignore (List.map print (List.combine infile_list result_list));
   print_endline "";
   if List.for_all is_true result_list then
     print_endline "All Pass!"
