@@ -2,11 +2,11 @@
 
 %token TERMINATOR
 %token INDENT
-%token DEDENT
-%token <int> DEDENT_COUNT
+%token OUTDENT
+%token <int> OUTDENT_COUNT
 %token ASSIGN
 %token EOF
-%token <string> ID
+%token <string> IDENTIFIER
 %token <float> NUM
 
 %right ASSIGN
@@ -18,4 +18,4 @@
 expr:
     | expr ASSIGN expr { Assign($1, $3)}
 	| NUM			{ Num($1) }
-	| ID			{ Id($1) }
+	| IDENTIFIER			{ Id($1) }
