@@ -7,7 +7,7 @@ let string_list_of_input_file file =
   let lexbuf = Lexing.from_channel (open_in file) in 
   let raw_token_list = token_list_of_lexbuf lexbuf Scanner.token Parser.EOF in
   let token_list = expand_token_list raw_token_list in
-  let stringify x = Printf.sprintf "%s " (string_of_token x) in
+  let stringify x = Printf.sprintf "%s" (string_of_token x) in
   List.map stringify token_list
 
 let string_list_of_output_file file =
@@ -42,8 +42,8 @@ let test_dir indir outdir =
   let result_list = (List.map test infile_list) in
   let is_true x = x in
   let print r = 
-    if (snd r) then Printf.printf "%s Pass" (fst r)
-    else Printf.printf "%s Fail" (fst r) in
+    if (snd r) then Printf.printf "%s Pass\n" (fst r)
+    else Printf.printf "%s Fail\n" (fst r) in
   List.map print (List.combine infile_list result_list);
   print_endline "";
   if List.for_all is_true result_list then
