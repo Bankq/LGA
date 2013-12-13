@@ -30,37 +30,32 @@ root:
 	| block TERMINATOR { $1 }
 
 body:
-	| statement { $1 }
-	| body TERMINATOR statement { List.append $1 [$3] }
+	| line { $1 }
+	| body TERMINATOR line { List.append $1 [$3] }
 	| body TERMINATOR { $1 }
 
+line:
+	| expression { $1 }
+	| statement { $1 }
 
 statement:
-	| expression							{ Expression($1) }
-	| return 								{ $1 }
-	| STATEMENT 							{ Literal($1) }
-	| IF expression block ELSE block 		{ If($1, $2, $3) }
-	| IF expression block 					{ If($1, $2, []) }
-	| WHILE expression block				{ While{$2, $3} }
-	| FOR identifier FORIN array block		{ For($1, $2, $3) }
-	| LPAREN paramList RPAREN ARROW block 	{ Code($2, $5) }
+	| return { $1 }
+	| STATEMENT { Literal($1) }
 
 return:
 	| RETURN expression { Return($2) } 
 	| RETURN { Return() }
 
-assignList:
-	| /* nothing */ { [] } 
-	| assignObj { [$1] }
-	| assignObj COMMA assignObj { List.append [$1] [$3] }
-	| assignList optComma TERMINATOR assignObj { List.append $1 $4 }
-	| assignList optComma INDENT assignList optComma OUTDENT { List.append $1 $4 }
-
 expression:
 	| value 							{ $1 } 
 	| invocation 						{ $1 } 
+	| code 								{ $1 }
 	| assign 							{ $1 }
-	| LBRACE assignList optComma RBRACE { Object($2) }
+	| obj 								{ $1 }
+	| ifBlock ELSE block				{ If($1, $3) }
+	| ifBlock							{ IfOnly($1) }
+	| WHILE expression block			{ While{$2, $3} }
+	| FOR identifier FORIN array block	{ For($1, $2, $3) }
 	| expression PLUS expression		{ Binop($1, Plus,$3) }
 	| expression MINUS expression		{ Binop($1, Minus, $3) }
 	| expression TIMES expression		{ Binop($1, Times, $3) }
@@ -76,9 +71,15 @@ expression:
 	| expression GEQ expression			{ Binop($1, Geq, $3) }
 	| NOT expression					{ Neg($2) }
 
+
+
+code:
+	| LPAREN paramList RPAREN ARROW block { Code($2, $5) }
+
 value:
 	| assignable { $1 }
 	| literal { $1 }
+	| parenthetical { Value($1) }
  	| thisProperty { $1 }
 
 assign:
@@ -86,24 +87,39 @@ assign:
 	| assignable ASSIGN TERMINATOR expression     { Assign ($1, $4) }
 	| assignable ASSIGN INDENT expression OUTDENT { Assign ($1, $4) }
 
+/*Assignable:
+	| SimpleAssignable { $1 }
+	| Array { Value($1) }
+	| Object { Value($1) }
+ */
+
 assignable:
 	| identifier { $1 }
 	| thisProperty { $1 }
 	| value DOT identifier	{ Assignable($1, $3) }
 
 assignObj:
-	/*| objAssignable { ($1) }*/
-	| objAssignable COLON expression { ($1, $2) }
-	| objAssignable COLON INDENT expression OUTDENT { ($1, $4) }
+	| objAssignable { $1 }
+	| objAssignable COLON expression { AssginObj($1, $3) }
+	| objAssignable COLON INDENT expression OUTDENT { AssignObj($1, $4) }
 	
 objAssignable:
 	| identifier 	{ $1 }
 	| thisProperty 	{ $1 }
-
+	
+obj:
+  | LBRACE assignList optComma RBRACE { Object($2) }
 
 optComma:
 	| /* nothing */	{ }
 	| COMMA		{ $1 }
+
+assignList:
+	| /* nothing */ { [] } 
+	| assignObj { [$1] }
+	| assignObj COMMA assignObj { List.append [$1] [$3] }
+	| assignList optComma TERMINATOR assignObj { List.append $1 $4 }
+	| assignList optComma INDENT assignList optComma OUTDENT { List.append $1 $4 }
 
 invocation:
 	| value arguments	{ Invocation($1, $2) }
@@ -142,6 +158,10 @@ index:
 indexValue:
 	| expression { $1 }
 
+parenthetical:
+	| LPAREN body RPAREN { Parenthetical($2) }
+	| LPAREN INDENT body OUTDENT RPAREN { Parenthetical($3) }
+
 array:
   | LBK RBK { Array([]) }
   | LBK argList RBK { Array($2) }
@@ -150,18 +170,129 @@ block:
 	| INDENT OUTDENT { [] }
 	| INDENT body OUTDENT { $2 }
 
+/* Identifier */
+/* description:
+ *	Identifier:
+ *		IDENTIFIER
+ */
+
 identifier:
 	IDENTIFIER	{ Id($1) }
+
+/* AlphaNumeric */
+/* description:
+ *	AlphaNumeric:
+ *		NUMBER
+ *		STRING
+ */
 
 alphaNumeric:
 	| NUM		{ Num($1) }
 	| STRING	{ String($1) }
+
+
+/* Literal */
+/* description:
+ *	Literal:
+ *		AlphaNumeric
+ *		NULL
+ *		BOOL
+ */
 
 literal:
 	| alphaNumeric	{ $1 }
 	| NULL		{ $1 }
 	| BOOL		{ Boolean{$1} }
 
+/* This */
+/* description:
+ * 	This:
+ *		THIS
+ *		@
+ */
+
 thisProperty:
 	| THIS identifier	{ ThisProperty($2) }
 
+
+/* If */
+/* description:
+ *	If:	
+ *		Ifblock
+ *		Ifblock ELSE block
+ *		statement POST_IF expression
+ *		expression POST_IF expression
+ */
+
+/*
+if:
+	| ifBlock ELSE block	{ If($1, $3) }
+	| ifBlock		{ IfOnly($1) }
+*/
+
+/* Ifblock */
+/* description:
+ *	Ifblock:
+ *		IF expression block
+ *		Ifblock ELSE IF expression block
+ */
+
+ifBlock:
+	| IF expression block			{ IfBlock($2, $3) }
+	| ifBlock ELSE IF expression block	{ IfBlockseq($1, $4, $5) }
+
+/*		
+/* While */
+/* description:
+ * 	While:
+ *		WhileSource block
+ */
+
+while:
+	whileSource block		{ While($1, $2) }
+
+/* WhileSource */
+/* description:
+ *	WhileSource:
+ *		WHILE expression
+ */
+
+whileSource:
+	WHILE expression		{ WhileSource($2) }
+*/
+/*
+while:
+	WHILE expression block			{ While{$2, $3} }
+*/
+/* For */
+/* description 
+ * 	For:
+ *		FirBody block
+ */
+ /*
+for:
+	FOR identifier FORIN array block	{ For($1, $2, $3) }
+*/
+/*
+for:
+	forBody block			{ For($1, $2) }
+
+forBody:
+	forStart forSource		{ ForBody($1, $2) }
+
+forStart:
+	FOR forVar			{ ForStart($2) }
+
+forVar:
+	| forValue			{ ForVar([$1]) }
+	| forValue, forValue		{ ForVar([$1; $2]) }
+
+forValue:
+	| identifier			{ $1 }
+	| array				{ $1 }
+	| obj			{ $1 }
+
+forSource:
+	| FORIN expression		{ ForSource($2) }
+
+*/
