@@ -39,8 +39,78 @@ let string_of_token : Parser.token -> string = function
      Printf.sprintf "IDENTIFIER<%s>" x
   | NUM(x) ->
      Printf.sprintf "NUM<%f>" x
+  | STATEMENT(x) ->
+     Printf.sprintf "STATEMENT<%s>" x
+  | BOOL(x) ->
+     Printf.sprintf "BOOL<%B>" x
   | ASSIGN ->
      "ASSIGN"
+  | TERMINATOR ->
+     "TERMINATOR"
+  | RETURN ->
+     "RETURN"
+  | ARROW ->
+     "ARROW"
+  | LBK ->
+     "LBK"
+  | RBK ->
+     "RBK"
+  | LPAREN ->
+     "LPAREN"
+  | RPAREN ->
+     "RPAREN"
+  | LBRACE ->
+     "LBRACE"
+  | RBRACE ->
+     "RBRACE"
+  | PLUS ->
+     "PLUS"
+  | MINUS ->
+     "MINUS"
+  | TIMES ->
+     "TIMES"
+  | DIVIDE ->
+     "DIVIDE"
+  | EQ ->
+     "EQ"
+  | NEQ ->
+     "NEQ"
+  | MOD ->
+     "MOD"
+  | AND ->
+     "AND"
+  | OR ->
+     "OR"
+  | LT ->
+     "LT"
+  | LEQ ->
+     "LEQ"
+  | GT ->
+     "GT"
+  | GEQ ->
+     "GEQ"
+  | NOT ->
+     "NOT"
+  | COLON ->
+     "COLON"
+  | COMMA ->
+     "COMMA"
+  | DOT ->
+     "DOT"
+  | NULL ->
+     "NULL"
+  | THIS ->
+     "THIS"
+  | IF ->
+     "IF"
+  | ELSE ->
+     "ELSE"
+  | WHILE ->
+     "WHILE"
+  | FOR ->
+     "FOR"
+  | FORIN ->
+     "FORIN"
   | INDENT ->
      "INDENT"
   | OUTDENT_COUNT(x) ->
