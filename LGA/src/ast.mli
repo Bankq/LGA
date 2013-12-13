@@ -32,6 +32,7 @@ type expression =
 	| String of string
 	| Boolean of string
 	| Invocation of value * expression list
+    | Nothing of string
 
 type array = 
 	  Array of expression list
