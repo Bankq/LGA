@@ -9,4 +9,4 @@ all:
 open:
 	open $(FILE).pdf
 clean:
-	rm -rf *.aux *.log ${FILE}.pdf
+	rm -rf *.aux *.dvi *.toc *.log ${FILE}.pdf
