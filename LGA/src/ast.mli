@@ -22,12 +22,12 @@ type assignable =
 	| Assignable of value * identifier
 	
 type expression = 
-	  Binop of expression * op * expression
+      Binop of expression * op * expression
 	| Object of (objAssignable * expression) list
 	| Neg of expression
-	| Assign of assignable * expression	
+    | Assign of assignable * expression
 	| Id of string
-	| ThisProperty of identifier
+    | ThisProperty of identifier
 	| Num of string
 	| String of string
 	| Boolean of string

@@ -51,13 +51,13 @@ statement:
 
 return:
 	| RETURN expression { Return($2) } 
-	| RETURN { Return() }
+	| RETURN { Return(Nothing("")) }
 
 assignList:
 	| /* nothing */ { [] } 
 	| assignObj { [$1] }
 	| assignObj COMMA assignObj { List.append [$1] [$3] }
-	| assignList optComma TERMINATOR assignObj { List.append $1 $4 }
+	| assignList optComma TERMINATOR assignObj { List.append $1 [$4] }
 	| assignList optComma INDENT assignList optComma OUTDENT { List.append $1 $4 }
 
 expression:
@@ -73,7 +73,7 @@ expression:
 	| expression NEQ expression			{ Binop($1, Neq, $3) }
 	| expression MOD expression			{ Binop($1, Mod, $3) }
 	| expression AND expression			{ Binop($1, And, $3) }
-	| expression OR expression			{ Binop($1, OR, $3) }
+	| expression OR expression			{ Binop($1, Or, $3) }
 	| expression LT expression			{ Binop($1, Less, $3) }
 	| expression LEQ expression			{ Binop($1, Leq, $3) }
 	| expression GT expression			{ Binop($1, Greater, $3) }
