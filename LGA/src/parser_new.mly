@@ -1,14 +1,17 @@
 %{open Ast %}
 
-%token ASSIGN TERMINATOR RETURN STATEMENT INDENT OUTDENT
+%token ASSIGN TERMINATOR RETURN INDENT OUTDENT
 %token ARROW LBK RBK LBK RBK
 %token LPAREN RPAREN PLUS MINUS TIMES DIVIDE
 %token EQ NEQ MOD AND OR LT LEQ GT GEQ NOT COLON 
-%token LBRACE RBRACE COMMA DOT NULL BOOL THIS
+%token LBRACE RBRACE COMMA DOT BOOL THIS
 %token IF ELSE WHILE FOR FORIN
 %token <string> IDENTIFIER
 %token <float> NUM
 %token <string>  STRING
+%token <string> STATEMENT
+%token <string> NULL
+%token <bool> BOOL
 %token EOF
 
 %nonassoc ELSE
@@ -39,10 +42,10 @@ statement:
 	| expression							{ Expression($1) }
 	| return 								{ $1 }
 	| STATEMENT 							{ Literal($1) }
-	| IF expression block ELSE block 		{ If($1, $2, $3) }
-	| IF expression block 					{ If($1, $2, []) }
+	| IF expression block ELSE block 		{ If($2, $3, $5) }
+	| IF expression block 					{ If($2, $3, []) }
 	| WHILE expression block				{ While{$2, $3} }
-	| FOR identifier FORIN array block		{ For($1, $2, $3) }
+	| FOR identifier FORIN array block		{ For($2, $4, $5) }
 	| LPAREN paramList RPAREN ARROW block 	{ Code($2, $5) }
 
 return:
@@ -93,7 +96,7 @@ assignable:
 
 assignObj:
 	/*| objAssignable { ($1) }*/
-	| objAssignable COLON expression { ($1, $2) }
+	| objAssignable COLON expression { ($1, $3) }
 	| objAssignable COLON INDENT expression OUTDENT { ($1, $4) }
 	
 objAssignable:
@@ -103,7 +106,7 @@ objAssignable:
 
 optComma:
 	| /* nothing */	{ }
-	| COMMA		{ $1 }
+	| COMMA			{ }
 
 invocation:
 	| value arguments	{ Invocation($1, $2) }
