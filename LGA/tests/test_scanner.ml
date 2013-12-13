@@ -7,7 +7,6 @@ let string_list_of_input_file file =
   let lexbuf = Lexing.from_channel (open_in file) in 
   let raw_token_list = token_list_of_lexbuf lexbuf Scanner.token Parser.EOF in
   let token_list = expand_token_list raw_token_list in
-  Printf.printf "TOKEN LIST LENGTH: %d\n" (List.length token_list);
   let stringify x = Printf.sprintf "%s " (string_of_token x) in
   List.map stringify token_list
 
@@ -20,7 +19,6 @@ let string_list_of_output_file file =
     done; []
   with End_of_file ->
     close_in ic;
-    Printf.printf "LENGTH: %d\n" (List.length !lines);
     List.rev !lines
 
 let test_file infile outfile =
