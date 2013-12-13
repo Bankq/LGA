@@ -1,7 +1,7 @@
 {
   open Parser
   open Utils
-  let _stack = Stack.create()
+  let _indent_stack = Stack.create()
 }
 
 let punc = ['~' '`' '!' '@' '#' '$' '%' '^' '&' '*' '(' ')' '-' '+' '=' ',' '.' '?' '/' '<' '>' ':' '''  ';' '{' '}' '[' ']' '|' ' ']
@@ -26,7 +26,6 @@ rule token = parse
 		| '}'      			{ RBRACE }
 		| '['				{ LBK }
 		| ']'				{ RBK }
-		| ';'      			{ SEMI }
 		| ','      			{ COMMA }
 		| ':'      			{ COLON }
 		| '='      			{ ASSIGN }
@@ -67,15 +66,15 @@ and indent = parse
 		   | spacetab as s 
 	   		{
 			 let len = (String.length s) in
-			 let top_pos = (Stack.top _stack) in
+			 let top_pos = (Stack.top _indent_stack) in
 			 if len > top_pos then
 			   begin
-				 Stack.push len _stack;
+				 Stack.push len _indent_stack;
 				 INDENT
 			   end
-			 else if len = top_pos then token lexbuf
+			 else if len = top_pos then TERMINATOR
 			 else
-			   let _count = (Utils.outdent_count len _stack) in
+			   let _count = (Utils.outdent_count len _indent_stack) in
 			   if _count = -1 then raise (Failure("SCANNER: wrong indent"))
 			   else OUTDENT_COUNT(_count)
 			}

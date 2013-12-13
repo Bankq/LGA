@@ -27,24 +27,21 @@ let test_file infile outfile =
   let in_list = (string_list_of_input_file infile) in
   let out_list = (string_list_of_output_file outfile) in
   let equal = fun x -> (fst x) = (snd x) in
-  List.iter print_endline in_list;
   List.for_all equal (List.combine in_list out_list)
 
-let _ = 
-  let indir = Sys.argv.(1) in
-  let outdir = Sys.argv.(2) in
+let test_dir indir outdir = 
   let infile_array = Sys.readdir indir in
   let test file =
     Printf.printf "TEST: %s\n" file;
     test_file (String.concat "" [indir;file]) (String.concat "" ([outdir;file;".out"])) 
   in
-  let infile_list = Array.to_list infile_array in
+  let raw_infile_list = Array.to_list infile_array in
   let is_test_file file = 
     if (String.sub file 0 1) = "." then false
     else true 
   in
-  let result_list = (List.map test 
-                     (List.filter is_test_file infile_list)) in
+  let infile_list = (List.filter is_test_file raw_infile_list) in
+  let result_list = (List.map test infile_list) in
   let is_true x = x in
   let print r = 
     if (snd r) then Printf.printf "%s Pass" (fst r)
@@ -54,6 +51,11 @@ let _ =
   if List.for_all is_true result_list then
     print_endline "All Pass!"
   else print_endline "Fail!"
+
+let _ = 
+  let indir = Sys.argv.(1) in
+  let outdir = Sys.argv.(2) in
+  test_dir indir outdir
            
 
                        
