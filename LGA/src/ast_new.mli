@@ -22,7 +22,7 @@ type assignable =
 	| Assignable of value * identifier
 	
 type expression = 
-	  Binop of expression * string * expression
+	  Binop of expression * op * expression
 	| Object of (objAssignable * expression) list
 	| Neg of expression
 	| Assign of assignable * expression	
@@ -56,7 +56,7 @@ type statement =
 	| Return of expression
 	| Block of statement list
 	| Literal of string
-	| If of expression * statement * statement
+	| If of expression * statement list * statement list
 	| While of whilesource * statement list
 	| For of identifier * array * statement list
 	| Code of paramList * statement list
