@@ -22,7 +22,7 @@ type assignable =
 	| Assignable of value * identifier
 	
 type expression = 
-	  Binop of expression * string * expression
+	  Binop of expression * op * expression
 	| Object of (objAssignable * expression) list
 	| Neg of expression
 	| Assign of assignable * expression	
