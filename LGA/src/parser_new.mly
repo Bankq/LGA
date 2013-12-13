@@ -105,7 +105,7 @@ objAssignable:
 	| identifiers { $1 }
 	| thisProperty { $1 }
 	
-object:
+obj:
   | LBRACE assignList optComma RBRACE { Object($2) }
 
 optComma:
@@ -147,7 +147,7 @@ param:
 paramVar:
 	| identifier { $1 }
 	| array { $1 }
-	| object { $1 }
+	| obj { $1 }
 	| thisProperty { $1 }
 
 index:
@@ -285,7 +285,7 @@ forVar:
 forValue:
 	| identifier			{ $1 }
 	| array				{ $1 }
-	| object			{ $1 }
+	| obj			{ $1 }
 
 forSource:
 	| FORIN expression		{ ForSource($2) }
