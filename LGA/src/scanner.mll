@@ -1,7 +1,7 @@
 {
   open Parser
   open Utils
-  let _stack = Stack.create()
+  let _indent_stack = Stack.create()
 }
 
 let punc = ['~' '`' '!' '@' '#' '$' '%' '^' '&' '*' '(' ')' '-' '+' '=' ',' '.' '?' '/' '<' '>' ':' '''  ';' '{' '}' '[' ']' '|' ' ']
@@ -67,6 +67,7 @@ and comment = parse
 				'\n' { token lexbuf }
 			| _    { comment lexbuf }
 
+
 {
-  Stack.push 0 _stack
+  Stack.push 0 _indent_stack
 }

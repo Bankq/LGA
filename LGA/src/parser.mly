@@ -1,5 +1,6 @@
 %{open Ast %}
 
+%token TERMINATOR
 %token INDENT
 %token DEDENT
 %token <int> DEDENT_COUNT

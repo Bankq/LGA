@@ -12,23 +12,25 @@ let dedent_count = fun len stack ->
   in helper 0
 
 let rec expand_token_list = fun list ->
-  match list with
-  | h :: t -> begin match h with
-                    | DEDENT_COUNT(x) ->
-                       if x = 1 then
-                         DEDENT :: (expand_token_list t)
-                       else
-                         DEDENT :: (expand_token_list (DEDENT_COUNT(x-1) :: t))
-                    | _ ->
-                       h :: (expand_token_list t)
-                              
-              end
-  | [] -> []
+  let rec expand_token = fun token ->
+    match token with
+    | INDENT -> TERMINATOR :: [token]
+    | DEDENT_COUNT(x) ->
+       let rec populate token =
+         match token with
+         | DEDENT_COUNT(x) ->
+            if x = 1 then [DEDENT]
+            else DEDENT :: (populate (DEDENT_COUNT(x-1)))
+         | _ -> [token] in
+       TERMINATOR :: (populate token)
+    | _ -> [token] in
+  List.flatten (List.map expand_token list)
+
   
 let token_list_of_lexbuf lexbuf tokenizer stopsign =
   let rec helper lexbuf list = 
     let token = tokenizer lexbuf in 
-    if token == stopsign then list
+    if token = stopsign then list
     else token :: (helper lexbuf list)
   in helper lexbuf []
 
@@ -45,6 +47,8 @@ let string_of_token : Parser.token -> string = function
      Printf.sprintf "DEDENT<%d>" x
   | DEDENT ->
      "DEDENT"
+  | TERMINATOR ->
+     "TERMINATOR"
   | EOF ->
      "EOF"
   | _ ->

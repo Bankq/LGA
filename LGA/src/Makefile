@@ -5,7 +5,7 @@ LEX = ocamllex
 PARSER = parser
 SCANNER = scanner
 AST = ast
-LGA = lga
+LGA = semantic
 UTILS = utils
 
 
