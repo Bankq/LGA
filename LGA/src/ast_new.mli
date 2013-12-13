@@ -14,7 +14,7 @@ type value =
 	| Assignable of value * identifier
 	| Num of string
 	| String of string
-	| Boolean of string
+	| Boolean of bool
 	
 type assignable = 
 	  Id of string
