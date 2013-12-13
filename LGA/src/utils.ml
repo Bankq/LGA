@@ -1,6 +1,6 @@
 open Parser
 
-let dedent_count = fun len stack -> 
+let outdent_count = fun len stack -> 
   let rec helper inc = 
     if (Stack.top stack) > len then
       begin 
@@ -15,12 +15,12 @@ let rec expand_token_list = fun list ->
   let rec expand_token = fun token ->
     match token with
     | INDENT -> TERMINATOR :: [token]
-    | DEDENT_COUNT(x) ->
+    | OUTDENT_COUNT(x) ->
        let rec populate token =
          match token with
-         | DEDENT_COUNT(x) ->
-            if x = 1 then [DEDENT]
-            else DEDENT :: (populate (DEDENT_COUNT(x-1)))
+         | OUTDENT_COUNT(x) ->
+            if x = 1 then [OUTDENT]
+            else OUTDENT :: (populate (OUTDENT_COUNT(x-1)))
          | _ -> [token] in
        TERMINATOR :: (populate token)
     | _ -> [token] in
@@ -35,18 +35,18 @@ let token_list_of_lexbuf lexbuf tokenizer stopsign =
   in helper lexbuf []
 
 let string_of_token : Parser.token -> string = function
-  | ID(x) ->
-     Printf.sprintf "ID<%s>" x
+  | IDENTIFIER(x) ->
+     Printf.sprintf "IDENTIFIER<%s>" x
   | NUM(x) ->
      Printf.sprintf "NUM<%f>" x
   | ASSIGN ->
      "ASSIGN"
   | INDENT ->
      "INDENT"
-  | DEDENT_COUNT(x) ->
-     Printf.sprintf "DEDENT<%d>" x
-  | DEDENT ->
-     "DEDENT"
+  | OUTDENT_COUNT(x) ->
+     Printf.sprintf "OUTDENT<%d>" x
+  | OUTDENT ->
+     "OUTDENT"
   | TERMINATOR ->
      "TERMINATOR"
   | EOF ->
