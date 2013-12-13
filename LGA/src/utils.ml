@@ -117,8 +117,6 @@ let string_of_token : Parser.token -> string = function
      Printf.sprintf "OUTDENT<%d>" x
   | OUTDENT ->
      "OUTDENT"
-  | TERMINATOR ->
-     "TERMINATOR"
   | EOF ->
      "EOF"
   | _ ->
