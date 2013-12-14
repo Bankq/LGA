@@ -60,7 +60,7 @@ type 'a line =
     ExpressionLine of 'a
   | StatementLine of 'a statement
 
-type 'a body = 'a line list
+type 'a body = ('a line) list
 type 'a block = 'a body
     
 type paramList = identifier list
@@ -88,16 +88,16 @@ type forStart = ForStart of forVar
 type 'a forBody = ForBody of forStart * 'a forSource
 type 'a fortype  = For of 'a forBody * 'a block
 
-type 'a expression =
-    ValueExpression of 'a value
-  | InvocationExpression of ('a, 'a value) invocation
-  | CodeExpression of 'a code
-  | OperationExpression of 'a operation
-  | AssignExpression of 'a assign
-  | IfExpression of 'a iftype
-  | WhileExpression of 'a whiletype
-  | ForExpression of 'a fortype
+type expression =
+    ValueExpression of expression value
+  | InvocationExpression of (expression, expression value) invocation
+  | CodeExpression of expression code
+  | OperationExpression of expression operation
+  | AssignExpression of expression assign
+  | IfExpression of expression iftype
+  | WhileExpression of expression whiletype
+  | ForExpression of expression fortype
 
 
-type 'a root = 'a body 
+type root = expression body 
     
