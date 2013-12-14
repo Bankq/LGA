@@ -47,27 +47,29 @@ return:
 	| RETURN { Return() }
 
 expression:
-	| value { $1 } 
-	| invocation { $1 } 
-	| code { $1 }
-	| assign { $1 }
-	| if { $1 }
-	| while { $1 }
-	| for { $1 }
+	| value 							{ $1 } 
+	| invocation 						{ $1 } 
+	| code 								{ $1 }
+	| assign 							{ $1 }
+	| obj 								{ $1 }
+	| ifBlock ELSE block				{ If($1, $3) }
+	| ifBlock							{ IfOnly($1) }
+	| WHILE expression block			{ While{$2, $3} }
+	| FOR identifier FORIN array block	{ For($1, $2, $3) }
 	| expression PLUS expression		{ Binop($1, Plus,$3) }
 	| expression MINUS expression		{ Binop($1, Minus, $3) }
 	| expression TIMES expression		{ Binop($1, Times, $3) }
 	| expression DIVIDE expression		{ Binop($1, Divide, $3)}
-	| expression EQ	expression		{ Binop($1, Eq, $3) }
-	| expression NEQ expression		{ Binop($1, Neq, $3) }
-	| expression MOD expression		{ Binop($1, Mod, $3) }
-	| expression AND expression		{ Binop($1, And, $3) }
-	| expression OR expression		{ Binop($1, OR, $3) }
-	| expression LT expression		{ Binop($1, Less, $3) }
-	| expression LEQ expression		{ Binop($1, Leq, $3) }
-	| expression GT expression		{ Binop($1, Greater, $3) }
-	| expression GEQ expression		{ Binop($1, Geq, $3) }
-	| NOT expression			{ Not($2) }
+	| expression EQ	expression			{ Binop($1, Eq, $3) }
+	| expression NEQ expression			{ Binop($1, Neq, $3) }
+	| expression MOD expression			{ Binop($1, Mod, $3) }
+	| expression AND expression			{ Binop($1, And, $3) }
+	| expression OR expression			{ Binop($1, OR, $3) }
+	| expression LT expression			{ Binop($1, Less, $3) }
+	| expression LEQ expression			{ Binop($1, Leq, $3) }
+	| expression GT expression			{ Binop($1, Greater, $3) }
+	| expression GEQ expression			{ Binop($1, Geq, $3) }
+	| NOT expression					{ Neg($2) }
 
 
 
@@ -78,7 +80,7 @@ value:
 	| assignable { $1 }
 	| literal { $1 }
 	| parenthetical { Value($1) }
- 	| this { $1 }
+ 	| thisProperty { $1 }
 
 assign:
 	| assignable ASSIGN expression                { Assign ($1, $3) }
@@ -102,8 +104,8 @@ assignObj:
 	| objAssignable COLON INDENT expression OUTDENT { AssignObj($1, $4) }
 	
 objAssignable:
-	| identifiers { $1 }
-	| thisProperty { $1 }
+	| identifier 	{ $1 }
+	| thisProperty 	{ $1 }
 	
 obj:
   | LBRACE assignList optComma RBRACE { Object($2) }
@@ -162,7 +164,7 @@ parenthetical:
 
 array:
   | LBK RBK { Array([]) }
-  | LBK arglist RBK { Array($2) }
+  | LBK argList RBK { Array($2) }
 
 block:
 	| INDENT OUTDENT { [] }
@@ -199,7 +201,7 @@ alphaNumeric:
 
 literal:
 	| alphaNumeric	{ $1 }
-	| NULL		{ NULL() }
+	| NULL		{ $1 }
 	| BOOL		{ Boolean{$1} }
 
 /* This */
@@ -222,9 +224,11 @@ thisProperty:
  *		expression POST_IF expression
  */
 
+/*
 if:
 	| ifBlock ELSE block	{ If($1, $3) }
 	| ifBlock		{ IfOnly($1) }
+*/
 
 /* Ifblock */
 /* description:
@@ -256,18 +260,19 @@ while:
 whileSource:
 	WHILE expression		{ WhileSource($2) }
 */
-
+/*
 while:
 	WHILE expression block			{ While{$2, $3} }
-
+*/
 /* For */
 /* description 
  * 	For:
  *		FirBody block
  */
+ /*
 for:
 	FOR identifier FORIN array block	{ For($1, $2, $3) }
-
+*/
 /*
 for:
 	forBody block			{ For($1, $2) }
