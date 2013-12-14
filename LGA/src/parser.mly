@@ -27,7 +27,6 @@ Line:
 
 Statement:
 	| Return { $1 }
-	| Comment { $1 }
 	| STATEMENT { Literal($1) }
 
 Return:
