@@ -12,7 +12,7 @@ UTILS = utils
 all: asto parsero scannero lgao utilso
 	$(CC) $(PARSER).cmo $(UTILS).cmo $(SCANNER).cmo $(LGA).cmo -o $(LGA)
 utilso: parsero
-	$(CC) -c $(UTILS).ml
+	$(CC) -rectypes -c $(UTILS).ml
 scannero: scanner utilso
 	$(CC) -c $(SCANNER).ml
 scanner:

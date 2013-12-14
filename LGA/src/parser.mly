@@ -37,17 +37,17 @@ root:
 	| block TERMINATOR { $1 }
 
 body:
-	| line { $1 }
-	| body TERMINATOR line { List.append $1 [$3] }
+	| line { [$1] }
+	| body TERMINATOR line { List.append $1 $3 }
 	| body TERMINATOR { $1 }
 
 line:
-	| expression { $1 }
-	| statement { $1 }
+	| expression { ExpressionLine($1) }
+	| statement { StatementLine($1) }
 
 statement:
-	| return { $1 }
-	| STATEMENT { Literal($1) }
+	| return { ReturnStatement($1) }
+	| STATEMENT { LiteralStatement($1) }
 
 return:
 	| RETURN expression { Return($2) } 
@@ -58,9 +58,9 @@ expression:
 	| code { $1 }
 	| operation { $1 }
 	| assign { $1 }
-	| if { $1 }
-	| while { $1 }
-	| for { $1 }
+	| iftype { $1 }
+	| whiletype { $1 }
+	| fortype { $1 }
 
 operation:
 	| lop PLUS expression		{ Binop($1, Plus,$3) }
@@ -79,16 +79,16 @@ operation:
 	| NOT expression			{ Neg($2) }
 
 lop:
-	| value { $1 }
-	| invocation { $1 }
+	| value { ValueLop($1) }
+	| invocation { InvocationLop($1) }
 
 code:
 	| FUN LPAREN paramList RPAREN ARROW block { Code($3, $6) }
 
 value:
-	| assignable { $1 }
-	| literal { Value($1) }
-	| parenthetical { Value($1) }
+
+	| literal { LiteralValue($1) }
+	| parenthetical { ParentheticalValue($1) }
 
 assign:
 	| assignable ASSIGN expression                { Assign ($1, $3) }
@@ -96,15 +96,12 @@ assign:
 	| assignable ASSIGN INDENT expression OUTDENT { Assign ($1, $4) }
 
 assignable:
-	| simpleAssignable { $1 }
-	| array { Value($1) }
-	| obj { Value($1) }
-
-simpleAssignable:
+	| array { $1 }
+	| obj { $1 }
 	| identifier { $1 }
 	| thisProperty { $1 }
-	| value accessor { $1 }
-	| invocation accessor { $1 }
+	| value accessor { ValueAccessorAssignable($1, $2) }
+	| invocation accessor { InvocationAccessorAssignable($1, $2) }
 
 assignObj:
 	| objAssignable COLON expression { AssginObj($1, $3) }
@@ -115,8 +112,8 @@ objAssignable:
 	| thisProperty { $1 }
 
 accessor:
-	| DOT identifier { $2 }
-	| index {$1}
+	| DOT identifier { DotAccessor($2) }
+	| index { IndexAccessor($1) }
 	
 obj:
   | LBRACE assignList RBRACE { Object($2) }
@@ -124,19 +121,19 @@ obj:
 assignList:
 	| /* nothing */ { [] } 
 	| assignObj { [$1] }
-	| assignList COMMA assignObj { List.append [$1] [$3] }
+	| assignList COMMA assignObj { List.append $1 $3 }
 	| assignList COMMA TERMINATOR assignObj { List.append $1 $4 }
 	| assignList COMMA INDENT assignList OUTDENT { List.append $1 $4 }
 
 invocation:
-	| value arguments	{ Invocation($1) }
+	| value arguments	{ Invocation($1, $2) }
 
 arguments:
 	| LPAREN RPAREN { [] }
 	| LPAREN argList RPAREN { $2 }
 
 argList:
-	| expression { $1 } 
+	| expression { [$1] } 
 	| argList COMMA expression { List.append $1 $3 }
 	| argList COMMA TERMINATOR expression { List.append $1 $4 }
 	| INDENT argList OUTDENT { $2 }
@@ -144,31 +141,31 @@ argList:
 
 paramList:
 	| /* nothing */		{ [] }
-	| identifier { $1 }
+	| identifier { [$1] }
 	| paramList COMMA identifier { List.append $1 $3 }
 	| paramList COMMA TERMINATOR identifier { List.append $1 $4 }
 	| paramList COMMA INDENT paramList OUTDENT {List.append $1 $4 }
 
 index:
-	| LBK indexValue RBK { $2 }
+	| LBK indexValue RBK { Index($2) }
 
 indexValue:
-	| NUM { $1 }
+	| NUM { Literal($1) }
 
 parenthetical:
 	| LPAREN body RPAREN { Parenthetical($2) }
 	| LPAREN INDENT body OUTDENT RPAREN { Parenthetical($3) }
 
 array:
-  | LBK RBK { Array([]) }
-  | LBK argList RBK { Array($2) }
+  | LBK RBK { [] }
+  | LBK argList RBK { $2 }
 
 block:
 	| INDENT OUTDENT { [] }
 	| INDENT body OUTDENT { $2 }
 
 identifier:
-	IDENTIFIER	{ Id($1) }
+	IDENTIFIER	{ Literal($1) }
 
 literal:
 	| NUM		{ Num($1) }
@@ -177,36 +174,33 @@ literal:
 	| BOOL		{ Boolean{$1} }
 
 thisProperty:
-	| THIS identifier	{ ThisProperty($2) }
+	| THIS identifier	{ $2 }
 
-if:
-	| ifBlock ELSE block	{ If($1, $3) }
+iftype:
+	| ifBlock ELSE block	{ IfElse($1, $3) }
 	| ifBlock		{ IfOnly($1) }
 
 ifBlock:
 	| IF expression block			{ Ifblock($2, $3) }
-	| ifBlock ELSE IF expression block	{ Ifblockseq($1, $4, $5) }
+	| ifBlock ELSE IF expression block	{ IfBlockSeq($1, $4, $5) }
 
-while:
+whiletype:
 	whileSource block		{ While($1, $2) }
 
 whileSource:
-	WHILE expression		{ WhileSource($2) }
+	| WHILE expression		{ WhileSource($2) }
 
-for:
-	forBody block			{ For($1, $2) }
+fortype:
+	| forBody block			{ For($1, $2) }
 
 forBody:
-	forStart forSource		{ ForBody($1, $2) }
+	| forStart forSource		{ ForBody($1, $2) }
 
 forStart:
-	FOR forVar			{ ForStart($2) }
+	| FOR forVar			{ ForStart($2) }
 
 forVar:
-	| forValue			{ ForVar([$1]) }
-
-forValue:
-	| identifier			{ $1 }
+    | identifier 			{ ForVar($1) }
 
 forSource:
 	| FORIN expression		{ ForSource($2) }
