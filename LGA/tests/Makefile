@@ -1,4 +1,4 @@
-CC = ocamlc
+CC = ocamlc -rectypes
 SRC = ../src
 
 .PHONY: scanner test clean
