@@ -107,7 +107,7 @@ objAssignable:
 	| thisProperty { $1 }
 
 accessor:
-	| DOT indentifier {???}
+	| DOT identifier { $2 }
 	| index {$1}
 	
 obj:
