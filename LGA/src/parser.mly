@@ -17,11 +17,13 @@
 
 %nonassoc ELSE
 %right ASSIGN
+%left OR
+%left AND
 %left EQ NEQ
-%left LT GT LEQ GEQ
+%left LT GT LEQ GEQ 
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%left AND OR 
+%right NOT
 
 %start root
 %type <Ast.root> root
@@ -34,59 +36,58 @@ root:
 	| block TERMINATOR { $1 }
 
 body:
-	| statement { [$1] }
-	| body TERMINATOR statement { List.append $1 [$3] }
+	| line { $1 }
+	| body TERMINATOR line { List.append $1 [$3] }
 	| body TERMINATOR { $1 }
 
+line:
+	| expression { $1 }
+	| statement { $1 }
 
 statement:
-	| expression							{ Expression($1) }
-	| return 								{ $1 }
-	| STATEMENT 							{ Literal($1) }
-	| IF expression block ELSE block 		{ If($2, $3, $5) }
-	| IF expression block 					{ If($2, $3, []) }
-	| WHILE expression block                { While($2, $3) }
-	| FOR identifier FORIN array block		{ For($2, $4, $5) }
-	| LPAREN paramList RPAREN ARROW block 	{ Code($2, $5) }
+	| return { $1 }
+	| STATEMENT { Literal($1) }
 
 return:
 	| RETURN expression { Return($2) } 
-	| RETURN { Return(Nothing("")) }
-
-assignList:
-	| /* nothing */ { [] } 
-	| assignObj { [$1] }
-	| assignObj COMMA assignObj { List.append [$1] [$3] }
-	| assignList optComma TERMINATOR assignObj { List.append $1 [$4] }
-	| assignList optComma INDENT assignList optComma OUTDENT { List.append $1 $4 }
 
 expression:
-	| value 							{ $1 } 
-	| invocation 						{ $1 } 
-	| assign 							{ $1 }
-	| obj  								{ $1 }
-	| expression PLUS expression		{ Binop($1, Plus,$3) }
-	| expression MINUS expression		{ Binop($1, Minus, $3) }
-	| expression TIMES expression		{ Binop($1, Times, $3) }
-	| expression DIVIDE expression		{ Binop($1, Divide, $3)}
-	| expression EQ	expression			{ Binop($1, Eq, $3) }
-	| expression NEQ expression			{ Binop($1, Neq, $3) }
-	| expression MOD expression			{ Binop($1, Mod, $3) }
-	| expression AND expression			{ Binop($1, And, $3) }
-	| expression OR expression			{ Binop($1, Or, $3) }
-	| expression LT expression			{ Binop($1, Less, $3) }
-	| expression LEQ expression			{ Binop($1, Leq, $3) }
-	| expression GT expression			{ Binop($1, Greater, $3) }
-	| expression GEQ expression			{ Binop($1, Geq, $3) }
-	| NOT expression					{ Neg($2) }
+	| value { $1 } 
+	| invocation { $1 } 
+	| code { $1 }
+	| operation { $1 }
+	| assign { $1 }
+	| if { $1 }
+	| while { $1 }
+	| for { $1 }
 
-obj:
-	| LBRACE assignList optComma RBRACE { Object($2) }
+operation:
+	| lop PLUS expression		{ Binop($1, Plus,$3) }
+	| lop MINUS expression		{ Binop($1, Minus, $3) }
+	| lop TIMES expression		{ Binop($1, Times, $3) }
+	| lop DIVIDE expression		{ Binop($1, Divide, $3)}
+	| lop EQ	expression		{ Binop($1, Eq, $3) }
+	| lop NEQ expression		{ Binop($1, Neq, $3) }
+	| lop MOD expression		{ Binop($1, Mod, $3) }
+	| lop AND expression		{ Binop($1, And, $3) }
+	| lop OR expression		{ Binop($1, OR, $3) }
+	| lop LT expression		{ Binop($1, Less, $3) }
+	| lop LEQ expression		{ Binop($1, Leq, $3) }
+	| lop GT expression		{ Binop($1, Greater, $3) }
+	| lop GEQ expression		{ Binop($1, Geq, $3) }
+	| NOT expression			{ Neg($2) }
+
+lop:
+	| value { $1 }
+	| invocation { $1 }
+
+code:
+	| FUN LPAREN paramList RPAREN ARROW block { Code($3, $6) }
 
 value:
 	| assignable { $1 }
-	| literal { $1 }
- 	| thisProperty { $1 }
+	| literal { Value($1) }
+	| parenthetical { Value($1) }
 
 assign:
 	| assignable ASSIGN expression                { Assign ($1, $3) }
@@ -94,60 +95,68 @@ assign:
 	| assignable ASSIGN INDENT expression OUTDENT { Assign ($1, $4) }
 
 assignable:
+	| simpleAssignable { $1 }
+	| array { Value($1) }
+	| obj { Value($1) }
+
+simpleAssignable:
 	| identifier { $1 }
 	| thisProperty { $1 }
-	| value DOT identifier	{ Assignable($1, $3) }
+	| value accessor { $1 }
+	| invocation accessor { $1 }
 
 assignObj:
-	/*| objAssignable { ($1) }*/
-	| objAssignable COLON expression { ($1, $3) }
-	| objAssignable COLON INDENT expression OUTDENT { ($1, $4) }
+	| objAssignable COLON expression { AssginObj($1, $3) }
+	| objAssignable COLON INDENT expression OUTDENT { AssignObj($1, $4) }
 	
 objAssignable:
-	| identifier 	{ $1 }
-	| thisProperty 	{ $1 }
+	| identifier { $1 }
+	| thisProperty { $1 }
 
+accessor:
+	| DOT identifier { $2 }
+	| index {$1}
+	
+obj:
+  | LBRACE assignList RBRACE { Object($2) }
 
-optComma:
-	| /* nothing */	{ }
-	| COMMA			{ }
+assignList:
+	| /* nothing */ { [] } 
+	| assignObj { [$1] }
+	| assignList COMMA assignObj { List.append [$1] [$3] }
+	| assignList COMMA TERMINATOR assignObj { List.append $1 $4 }
+	| assignList COMMA INDENT assignList OUTDENT { List.append $1 $4 }
 
 invocation:
-	| value arguments	{ Invocation($1, $2) }
+	| value arguments	{ Invocation($1) }
 
 arguments:
 	| LPAREN RPAREN { [] }
-	| LPAREN argList optComma RPAREN { $2 }
+	| LPAREN argList RPAREN { $2 }
 
 argList:
 	| expression { $1 } 
 	| argList COMMA expression { List.append $1 $3 }
-	| argList optComma TERMINATOR expression { List.append $1 $4 }
-	| INDENT argList optComma OUTDENT { $2 }
-	| argList optComma INDENT argList optComma OUTDENT { List.append $1 $4 }
+	| argList COMMA TERMINATOR expression { List.append $1 $4 }
+	| INDENT argList OUTDENT { $2 }
+	| argList COMMA INDENT argList OUTDENT { List.append $1 $4 }
 
 paramList:
 	| /* nothing */		{ [] }
-	| param { $1 }
-	| paramList COMMA param { List.append $1 $3 }
-	| paramList optComma TERMINATOR param { List.append $1 $4 }
-	| paramList optComma INDENT paramList optComma OUTDENT {List.append $1 $4 }
-
-param:
-	| paramVar { Param($1) }
-	| paramVar ASSIGN expression { Param($1, $3) }
-
-paramVar:
 	| identifier { $1 }
-	| array { $1 }
-	| obj { $1 }
-	| thisProperty { $1 }
+	| paramList COMMA identifier { List.append $1 $3 }
+	| paramList COMMA TERMINATOR identifier { List.append $1 $4 }
+	| paramList COMMA INDENT paramList OUTDENT {List.append $1 $4 }
 
 index:
 	| LBK indexValue RBK { $2 }
 
 indexValue:
-	| expression { $1 }
+	| NUM { $1 }
+
+parenthetical:
+	| LPAREN body RPAREN { Parenthetical($2) }
+	| LPAREN INDENT body OUTDENT RPAREN { Parenthetical($3) }
 
 array:
   | LBK RBK { Array([]) }
@@ -160,14 +169,43 @@ block:
 identifier:
 	IDENTIFIER	{ Id($1) }
 
-alphaNumeric:
+literal:
 	| NUM		{ Num($1) }
 	| STRING	{ String($1) }
-
-literal:
-	| alphaNumeric	{ $1 }
-	| NULL		{ $1 }
+	| NULL		{ NULL() }
 	| BOOL		{ Boolean{$1} }
 
 thisProperty:
-	| THIS identifier	{ ThisProperty($2) }	
+	| THIS identifier	{ ThisProperty($2) }
+
+if:
+	| ifBlock ELSE block	{ If($1, $3) }
+	| ifBlock		{ IfOnly($1) }
+
+ifBlock:
+	| IF expression block			{ Ifblock($2, $3) }
+	| ifBlock ELSE IF expression block	{ Ifblockseq($1, $4, $5) }
+
+while:
+	whileSource block		{ While($1, $2) }
+
+whileSource:
+	WHILE expression		{ WhileSource($2) }
+
+for:
+	forBody block			{ For($1, $2) }
+
+forBody:
+	forStart forSource		{ ForBody($1, $2) }
+
+forStart:
+	FOR forVar			{ ForStart($2) }
+
+forVar:
+	| forValue			{ ForVar([$1]) }
+
+forValue:
+	| identifier			{ $1 }
+
+forSource:
+	| FORIN expression		{ ForSource($2) }
