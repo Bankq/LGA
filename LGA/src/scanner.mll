@@ -51,8 +51,8 @@ rule token = parse
         | "||"              { OR }
 		| "or"				{ OR }
 		| "->"     			{ ARROW }
-		| "false"  			{ BOOL(false) }
-		| "true"   			{ BOOL(true) }
+		| "false" as lxm    { BOOL(lxm) }
+		| "true" as lxm  	{ BOOL(lxm) }
 		| "if"     			{ IF }
 		| "else"   			{ ELSE }
 		| "return" 			{ RETURN } 

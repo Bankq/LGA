@@ -7,12 +7,12 @@
 %token LBRACE RBRACE COMMA DOT BOOL THIS
 %token IF ELSE WHILE FOR FORIN
 %token <string> IDENTIFIER
-%token <float> NUM
+%token <string> NUM
 %token <string>  STRING
 %token <string> STATEMENT
 %token <int> OUTDENT_COUNT
 %token <string> NULL
-%token <bool> BOOL
+%token <string> BOOL
 %token EOF
 
 %nonassoc ELSE
