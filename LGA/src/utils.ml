@@ -97,7 +97,7 @@ let string_of_token : Parser.token -> string = function
      "COMMA"
   | DOT ->
      "DOT"
-  | NULL ->
+  | NULL(x) ->
      "NULL"
   | THIS ->
      "THIS"

@@ -3,14 +3,20 @@ type 'a dummy = 'a
 type op = Plus | Minus | Times | Divide | Eq | Neq | Mod | And | Or | Less | Leq | Greater | Geq | Not
 
 type literal = Literal of string
+type identifier = literal
+
+
+type indexValue = literal
+type index = Index of indexValue
+
 type accessor =
-    DotAccessor of literal
-  | IndexAccessor of literal
+    DotAccessor of identifier
+  | IndexAccessor of index
 
 type 'a argList = 'a list
 type 'a array = 'a argList
 
-type identifier = literal
+
 type thisProperty = identifier
 
 type objAssignable =
@@ -21,7 +27,18 @@ type 'a assignObj = AssignObj of objAssignable * 'a
 type 'a assignList = 'a assignObj list
 type 'a obj = Object of 'a assignList
 
-type 'a parenthetical = Parenthetical of 'a
+type 'a return = Return of 'a
+
+type 'a statement =
+    ReturnStatement of 'a return
+  | LiteralStatement of literal
+
+type 'a line =
+    ExpressionLine of 'a
+  | StatementLine of 'a statement
+
+type 'a body = ('a line) list
+type 'a parenthetical = Parenthetical of 'a body
 
 type 'a arguments = 'a argList
 type ('expr, 'value) invocation = Invocation of 'value * 'expr arguments
@@ -36,7 +53,7 @@ type ('expr, 'value) assignable =
 
 type 'a value =
     AssignableValue of ('a, 'a value) assignable
-  | InvocationAccessorAssignable of ('a, 'a value) invocation * accessor
+  | InvocationValue of ('a, 'a value) invocation * accessor
   | LiteralValue of literal
   | ParentheticalValue of 'a parenthetical
 
@@ -50,17 +67,9 @@ type 'a operation =
     Binop of 'a lop * op * 'a
   | Neg of 'a
 
-type 'a return = Return of 'a
 
-type 'a statement =
-    ReturnStatement of 'a return
-  | LiteralStatement of literal
 
-type 'a line =
-    ExpressionLine of 'a
-  | StatementLine of 'a statement
 
-type 'a body = ('a line) list
 type 'a block = 'a body
     
 type paramList = identifier list
@@ -68,8 +77,7 @@ type 'a code = Code of paramList * 'a block
 
 type 'a assign = Assign of ('a, 'a value) assignable * 'a
 
-type indexValue = literal
-type index = Index of indexValue
+
 
 type 'a ifBlock = 
     IfBlock of 'a * 'a block
