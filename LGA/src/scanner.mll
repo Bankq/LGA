@@ -39,15 +39,20 @@ rule token = parse
 		| '>'      			{ GT }
 		| '.'				{ DOT }
 		| '!'				{ NOT }
+        | "not"             { NOT }
 		| "=="				{ EQ }
+        | "is"              { EQ}
 		| "!="				{ NEQ }
+        | "isnt"            { NEQ }
 		| "<="				{ LEQ }
 		| ">="				{ GEQ }
-		| "&&"				{ AND }
-		| "||"				{ OR }
+        | "&&"              { AND }
+		| "and"				{ AND }
+        | "||"              { OR }
+		| "or"				{ OR }
 		| "->"     			{ ARROW }
-		| "false"  			{ BOOL(false) }
-		| "true"   			{ BOOL(true) }
+		| "false" as lxm    { BOOL(lxm) }
+		| "true" as lxm  	{ BOOL(lxm) }
 		| "if"     			{ IF }
 		| "else"   			{ ELSE }
 		| "return" 			{ RETURN } 
@@ -56,8 +61,9 @@ rule token = parse
 		| "in"				{ FORIN }
 		| "break"			{ STATEMENT("break") }
 		| "continue"		{ STATEMENT("continue") }
+        | "fun"             { FUN }
 		| id as lxm         { IDENTIFIER(lxm) }
-		| num as lxm        { NUM(float_of_string lxm) }
+		| num as lxm        { NUM(lxm) }
 		| string as lxm		{ STRING(lxm) }
 		| eof               { EOF }
 		| _ as char         { raise (Failure("SCANNER: illegal input"^Char.escaped char)) }

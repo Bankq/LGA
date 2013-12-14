@@ -38,11 +38,11 @@ let string_of_token : Parser.token -> string = function
   | IDENTIFIER(x) ->
      Printf.sprintf "IDENTIFIER<%s>" x
   | NUM(x) ->
-     Printf.sprintf "NUM<%f>" x
+     Printf.sprintf "NUM<%s>" x
   | STATEMENT(x) ->
      Printf.sprintf "STATEMENT<%s>" x
   | BOOL(x) ->
-     Printf.sprintf "BOOL<%B>" x
+     Printf.sprintf "BOOL<%s>" x
   | ASSIGN ->
      "ASSIGN"
   | TERMINATOR ->
