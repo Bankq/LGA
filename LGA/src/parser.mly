@@ -87,7 +87,6 @@ code:
 
 value:
     | assignable { AssignableValue($1) }
-    | invocation accessor { InvocationValue($1, $2) }
 	| literal { LiteralValue($1) }
 	| parenthetical { ParentheticalValue($1) }
 

@@ -56,7 +56,6 @@ type ('expr, 'value) assignable =
 
 type 'a value =
     AssignableValue of ('a, 'a value) assignable
-  | InvocationValue of ('a, 'a value) invocation * accessor
   | LiteralValue of literal
   | ParentheticalValue of 'a parenthetical
 
