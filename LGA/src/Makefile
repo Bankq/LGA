@@ -1,4 +1,4 @@
-CC = ocamlc
+CC = ocamlc -rectypes
 YACC = ocamlyacc
 LEX = ocamllex
 
@@ -7,12 +7,12 @@ SCANNER = scanner
 AST = ast
 LGA = semantic
 UTILS = utils
-
+FLAGS = -rectypes
 
 all: asto parsero scannero lgao utilso
 	$(CC) $(PARSER).cmo $(UTILS).cmo $(SCANNER).cmo $(LGA).cmo -o $(LGA)
 utilso: parsero
-	$(CC) -rectypes -c $(UTILS).ml
+	$(CC) -c $(UTILS).ml
 scannero: scanner utilso
 	$(CC) -c $(SCANNER).ml
 scanner:
