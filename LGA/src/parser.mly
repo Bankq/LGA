@@ -5,23 +5,24 @@
 %token LPAREN RPAREN PLUS MINUS TIMES DIVIDE
 %token EQ NEQ MOD AND OR LT LEQ GT GEQ NOT COLON 
 %token LBRACE RBRACE COMMA DOT BOOL THIS
-%token IF ELSE WHILE FOR FORIN
+%token IF ELSE WHILE FOR FORIN FUN
 %token <string> IDENTIFIER
-%token <float> NUM
-%token <string>  STRING
+%token <string> NUM
+%token <string> STRING
 %token <string> STATEMENT
 %token <int> OUTDENT_COUNT
 %token <string> NULL
 %token <bool> BOOL
 %token EOF
 
-%nonassoc ELSE
 %right ASSIGN
+%left OR
+%left AND
 %left EQ NEQ
-%left LT GT LEQ GEQ
+%left LT GT LEQ GEQ 
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%left AND OR 
+%right NOT
 
 %start root
 %type <Ast.root> root
@@ -60,23 +61,27 @@ expression:
 	| for { $1 }
 
 operation:
-	| expression PLUS expression		{ Binop($1, Plus,$3) }
-	| expression MINUS expression		{ Binop($1, Minus, $3) }
-	| expression TIMES expression		{ Binop($1, Times, $3) }
-	| expression DIVIDE expression		{ Binop($1, Divide, $3)}
-	| expression EQ	expression		{ Binop($1, Eq, $3) }
-	| expression NEQ expression		{ Binop($1, Neq, $3) }
-	| expression MOD expression		{ Binop($1, Mod, $3) }
-	| expression AND expression		{ Binop($1, And, $3) }
-	| expression OR expression		{ Binop($1, OR, $3) }
-	| expression LT expression		{ Binop($1, Less, $3) }
-	| expression LEQ expression		{ Binop($1, Leq, $3) }
-	| expression GT expression		{ Binop($1, Greater, $3) }
-	| expression GEQ expression		{ Binop($1, Geq, $3) }
+	| lop PLUS expression		{ Binop($1, Plus,$3) }
+	| lop MINUS expression		{ Binop($1, Minus, $3) }
+	| lop TIMES expression		{ Binop($1, Times, $3) }
+	| lop DIVIDE expression		{ Binop($1, Divide, $3)}
+	| lop EQ	expression		{ Binop($1, Eq, $3) }
+	| lop NEQ expression		{ Binop($1, Neq, $3) }
+	| lop MOD expression		{ Binop($1, Mod, $3) }
+	| lop AND expression		{ Binop($1, And, $3) }
+	| lop OR expression		{ Binop($1, OR, $3) }
+	| lop LT expression		{ Binop($1, Less, $3) }
+	| lop LEQ expression		{ Binop($1, Leq, $3) }
+	| lop GT expression		{ Binop($1, Greater, $3) }
+	| lop GEQ expression		{ Binop($1, Geq, $3) }
 	| NOT expression			{ Neg($2) }
 
+lop:
+	| value { $1 }
+	| invocation { $1 }
+
 code:
-	| LPAREN paramList RPAREN ARROW Block { Code($2, $5) }
+	| FUN LPAREN paramList RPAREN ARROW block { Code($3, $6) }
 
 value:
 	| assignable { $1 }
@@ -96,14 +101,15 @@ assignable:
 simpleAssignable:
 	| identifier { $1 }
 	| thisProperty { $1 }
-	| accessor { $1 }
+	| value accessor { $1 }
+	| invocation accessor { $1 }
 
 assignObj:
 	| objAssignable COLON expression { AssginObj($1, $3) }
 	| objAssignable COLON INDENT expression OUTDENT { AssignObj($1, $4) }
 	
 objAssignable:
-	| identifiers { $1 }
+	| identifier { $1 }
 	| thisProperty { $1 }
 
 accessor:
@@ -116,7 +122,7 @@ obj:
 assignList:
 	| /* nothing */ { [] } 
 	| assignObj { [$1] }
-	| assignObj COMMA assignObj { List.append [$1] [$3] }
+	| assignList COMMA assignObj { List.append [$1] [$3] }
 	| assignList COMMA TERMINATOR assignObj { List.append $1 $4 }
 	| assignList COMMA INDENT assignList OUTDENT { List.append $1 $4 }
 
@@ -136,23 +142,17 @@ argList:
 
 paramList:
 	| /* nothing */		{ [] }
-	| param { $1 }
-	| paramList COMMA param { List.append $1 $3 }
-	| paramList COMMA TERMINATOR param { List.append $1 $4 }
+	| identifier { $1 }
+	| paramList COMMA identifier { List.append $1 $3 }
+	| paramList COMMA TERMINATOR identifier { List.append $1 $4 }
 	| paramList COMMA INDENT paramList OUTDENT {List.append $1 $4 }
 
-param:
-	| paramVar { Param($1) }
-
-paramVar:
-	| identifier { $1 }
-	| thisProperty { $1 }
 
 index:
 	| LBK indexValue RBK { $2 }
 
 indexValue:
-	| expression { $1 }
+	| NUM { $1 }
 
 parenthetical:
 	| LPAREN body RPAREN { Parenthetical($2) }
@@ -160,7 +160,7 @@ parenthetical:
 
 array:
   | LBK RBK { Array([]) }
-  | LBK arglist RBK { Array($2) }
+  | LBK argList RBK { Array($2) }
 
 block:
 	| INDENT OUTDENT { [] }
@@ -184,7 +184,7 @@ if:
 
 ifBlock:
 	| IF expression block			{ Ifblock($2, $3) }
-	| IfBlock ELSE IF expression block	{ Ifblockseq($1, $4, $5) }
+	| ifBlock ELSE IF expression block	{ Ifblockseq($1, $4, $5) }
 
 while:
 	whileSource block		{ While($1, $2) }
