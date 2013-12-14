@@ -13,6 +13,7 @@
 %token <int> OUTDENT_COUNT
 %token <string> NULL
 %token <string> BOOL
+%token FUN
 %token EOF
 
 %nonassoc ELSE
