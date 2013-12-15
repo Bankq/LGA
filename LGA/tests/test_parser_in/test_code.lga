@@ -1,0 +1,6 @@
+add = fun(a, b) -> 
+	c = a + b
+	return c
+
+test = fun() ->
+	return
