@@ -49,6 +49,8 @@ let string_of_token : Parser.token -> string = function
      "TERMINATOR"
   | RETURN ->
      "RETURN"
+  | FUN ->
+     "FUN"
   | ARROW ->
      "ARROW"
   | LBK ->
