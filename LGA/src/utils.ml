@@ -1,6 +1,8 @@
 (** Open modules *)
- open Ast
- open Parser
+open Ast
+open Parser
+open Printf
+let log x = print_endline x
 
 (** Returns the number of outdent(s) that occur at the beginning of one line according to the number of white spaces len and a stack. The stack holds the size of indents sequentially. the function is called when the new line has at least one outdent. The size of indent has to match some smaller level and the function returns a value equal or larger than 1, otherwise returns -1. *)
 let outdent_count = fun len stack -> 
