@@ -1,5 +1,8 @@
 open Ast
 open Parser
+open Printf
+
+let log x = print_endline x
 
 let outdent_count = fun len stack -> 
   let rec helper inc = 
