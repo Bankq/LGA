@@ -9,6 +9,6 @@ test_scanner: scanner
 scanner:
 	make -C $(SRC)
 test: test_scanner
-	./test_scanner ./test_in/ ./test_out/
+	./test_scanner ./test_scanner_in/ ./test_scanner_out/
 clean:
 	rm -rf *.cmi *.cmo test_scanner

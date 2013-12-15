@@ -1,4 +1,4 @@
-move_forward = (l) ->
+move_forward = fun(l) ->
 	if @pos && @vec
 	a = math.atan(@vec[0], @vec[1])
 	@pos[0] += math.cos(angle) * l

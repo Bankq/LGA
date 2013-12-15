@@ -57,7 +57,7 @@ let rec expand_token_list = fun list ->
 let token_list_of_lexbuf lexbuf tokenizer stopsign =
   let rec helper lexbuf list = 
     let token = tokenizer lexbuf in 
-    if token = stopsign then list
+    if token = stopsign then (List.append list [token])
     else token :: (helper lexbuf list)
   in expand_token_list (helper lexbuf [])
 
@@ -86,6 +86,8 @@ let string_of_token : Parser.token -> string = function
      "TERMINATOR"
   | RETURN ->
      "RETURN"
+  | FUN ->
+     "FUN"
   | ARROW ->
      "ARROW"
   | LBK ->
