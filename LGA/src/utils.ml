@@ -171,5 +171,3 @@ let string_of_token : Parser.token -> string = function
      "OUTDENT"
   | EOF ->
      "EOF"
-  | _ ->
-     "UNKNOWN"
