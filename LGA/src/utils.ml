@@ -1,4 +1,5 @@
-(** Open modules *)
+(** The Util module is a grouping of commonly-needed functions. *)
+
 open Ast
 open Parser
 open Printf
@@ -52,7 +53,7 @@ let test_dir test_fun indir outdir =
 let rec expand_token_list = fun list ->
   let rec expand_token = fun token ->
     match token with
-    | INDENT -> TERMINATOR :: [token]
+    | INDENT -> [token]
     | OUTDENT_COUNT(x) ->
        let rec populate token =
          match token with
@@ -60,7 +61,7 @@ let rec expand_token_list = fun list ->
             if x = 1 then [OUTDENT]
             else OUTDENT :: (populate (OUTDENT_COUNT(x-1)))
          | _ -> [token] in
-       TERMINATOR :: (populate token)
+       List.append (populate token) [TERMINATOR]
     | _ -> [token] in
   List.flatten (List.map expand_token list)
 
@@ -71,17 +72,6 @@ let token_list_of_lexbuf lexbuf tokenizer stopsign =
     if token = stopsign then (List.append list [token])
     else token :: (helper lexbuf list)
   in expand_token_list (helper lexbuf [])
-
-(** Parse a file with myparser and tokenizer and return a list which represents the ast. *)
-let ast_of_file myparser tokenizer filename =
-  let lexbuf = Lexing.from_channel (open_in filename) in
-  let token_list = ref (token_list_of_lexbuf lexbuf tokenizer Parser.EOF) in
-  let tokenize lexbuf = 
-    match !token_list with
-    | [] -> Parser.TERMINATOR
-    | h :: t -> token_list := t; h
-  in
-  myparser tokenize (Lexing.from_string "")
 
 (** Match tokens to strings reflecting their names. *)
 let string_of_token : Parser.token -> string = function
@@ -173,5 +163,14 @@ let string_of_token : Parser.token -> string = function
      "OUTDENT"
   | EOF ->
      "EOF"
-  | _ ->
-     "UNKNOWN"
+
+(** Parse a file with myparser and tokenizer and return a list which represents the ast. *)
+let ast_of_file myparser tokenizer filename =
+  let lexbuf = Lexing.from_channel (open_in filename) in
+  let token_list = ref (token_list_of_lexbuf lexbuf tokenizer Parser.EOF) in
+  let tokenize lexbuf = 
+    match !token_list with
+    | [] -> Parser.EOF
+    | h :: t -> token_list := t; h
+  in
+  myparser tokenize (Lexing.from_string "")
