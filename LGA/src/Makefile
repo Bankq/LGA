@@ -5,12 +5,11 @@ LEX = ocamllex
 PARSER = parser
 SCANNER = scanner
 AST = ast
-LGA = semantic
+SEMANTIC = semantic
 UTILS = utils
-FLAGS = -rectypes
 
-all: asto parsero scannero lgao utilso
-	$(CC) $(PARSER).cmo $(UTILS).cmo $(SCANNER).cmo $(LGA).cmo -o $(LGA)
+all: asti parsero scannero semantico utilso
+	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo $(SEMANTIC).cmo -o $(SEMANTIC)
 utilso: parsero
 	$(CC) -c $(UTILS).ml
 scannero: scanner utilso
@@ -19,15 +18,15 @@ scanner:
 	$(LEX) $(SCANNER).mll
 parsero: parseri
 	$(CC) -c $(PARSER).ml
-parseri: parser asto
+parseri: parser asti
 	$(CC) -c $(PARSER).mli
 parser:
 	$(YACC) $(PARSER).mly
-asto:
+asti:
 	$(CC) -c $(AST).mli
-lgao: parsero
-	$(CC) -c $(LGA).ml
+semantico: asti parsero
+	$(CC) -c $(SEMANTIC).ml
 
 clean:
-	rm -rf *.cmo *.cmi $(LGA) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml
+	rm -rf *.cmo *.cmi $(SEMANTIC) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml
 
