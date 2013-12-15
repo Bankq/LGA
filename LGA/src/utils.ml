@@ -1,4 +1,5 @@
-(** Open modules *)
+(** The Util module is a grouping of commonly-needed functions. *)
+
 open Ast
 open Parser
 open Printf
