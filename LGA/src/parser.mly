@@ -178,11 +178,13 @@ thisProperty:
 
 iftype:
 	| ifBlock ELSE block	{ IfElse($1, $3) }
+    | ifBlock TERMINATOR ELSE block { IfElse($1, $4) }
 	| ifBlock		{ IfOnly($1) }
 
 ifBlock:
 	| IF expression block			    { IfBlock($2, $3) }
 	| ifBlock ELSE IF expression block	{ IfBlockSeq($1, $4, $5) }
+    | ifBlock TERMINATOR ELSE IF expression block { IfBlockSeq($1, $5, $6) }
 
 whiletype:
 	| whileSource block		{ While($1, $2) }
