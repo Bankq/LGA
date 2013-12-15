@@ -1,4 +1,5 @@
 square = {
+	str : "hello world I'm a square"
 	run : circle
 	pos : [2, 5]
 	vec : [1, 1]
