@@ -1,7 +1,7 @@
 if(a == 1)
-	if (b && c)
+	if (b and c)
 		d = a + b
-		while (a > 0)
+		while (a isnt 0)
 			b = a * 2
 			a = a - 1
 	a = d/3
