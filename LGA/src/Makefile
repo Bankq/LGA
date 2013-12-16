@@ -26,7 +26,10 @@ asti:
 	$(CC) -c $(AST).mli
 semantico: asti parsero
 	$(CC) -c $(SEMANTIC).ml
+token: scannero parsero
+	$(CC) -c token.ml
+	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo token.cmo -o token
 
 clean:
-	rm -rf *.cmo *.cmi $(SEMANTIC) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml
+	rm -rf *.cmo *.cmi $(SEMANTIC) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml token
 

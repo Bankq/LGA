@@ -98,7 +98,7 @@ let handle_parenthetical f a =
                         handle_body f x
 
 let handle_arguments f a = 
-  log("ArgList");
+  log("Arguments");
   handle_arg_list f a
 
 let handle_invocation fe fv a =
@@ -214,7 +214,7 @@ let handle_for_start a =
 
 let handle_for_body f a = 
   match a with
-  | ForBody(x, y) -> log("For");
+  | ForBody(x, y) -> log("ForBody");
                      handle_for_start x;
                      handle_for_source f y
 
