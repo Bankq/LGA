@@ -1,6 +1,7 @@
 {
   open Parser
   open Utils
+  open Lexing
   let _indent_stack = Stack.create()
 }
 
@@ -81,7 +82,7 @@ and indent = parse
 			 else if len = top_pos then TERMINATOR
 			 else
 			   let _count = (Utils.outdent_count len _indent_stack) in
-			   if _count = -1 then raise (Failure("SCANNER: wrong indent"))
+			   if _count = -1 then raise (Failure("SCANNER: wrong indent on line "^string_of_int lexbuf.lex_curr_p.pos_lnum))
 			   else OUTDENT_COUNT(_count)
 			}
 
