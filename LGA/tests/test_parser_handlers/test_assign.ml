@@ -1,52 +1,53 @@
+open Printf
 open Ast
 open Scanner
 open Parser
 open Utils
+open Semantic
 
-let check_literal = function
-	Literal(x) -> x
-	| _ -> "FAILURE, not literal"
+let string_list_of_file file = 
+	let lines = ref [] in
+	let ic = open_in file in
+	try
+	 while true; do
+	   lines := input_line ic :: !lines
+	 done; []
+	with End_of_file ->
+	 close_in ic;
+	 List.rev !lines
+(*
+let string_list_of_input_file file =
+	let 
+*)
 
-let check_fst = function
-	IdentifierAssignable(x) -> check_literal x
-	| _ -> "FAILURE, not identifier"
+let test_file ast expc = 
+	let equal = fun x -> (fst x) = (snd x) in
+	if List.for_all equal (List.combine ast expc) then true
+	else false
 
-let check_literal_value = function
-	LiteralValue(x) -> check_literal x
-	| _ -> "FAILURE, not literal value"
+let file_filter = fun dir ->
+	let infile_array = Sys.readdir dir in
+	let raw_file_list = Array.to_list infile_array in
+	let is_target = fun file ->
+	   if (String.sub file 0 4) = "test" then true else false in
+	List.filter is_target raw_file_list
 
-let check_snd = function
-	ValueExpression(x) -> check_literal_value x
-	| _ -> "FAILURE, not value expression"
+let print_result = fun ast expc infile->
+	if(test_file ast expc) then Printf.sprintf "Test %s PASS!" infile
+	else Printf.sprintf "Test %s FAIL!" infile
 
-let check_assign = function
-	Assign(e1, e2) -> 
-		(*let x = check_fst e1 and y = check_snd e2 in [e1; e2]*)
-		let x = check_fst e1 in [x]
-	| _ -> ["FAILURE, not assign"]
-	
-
-let check_assign_expression = function
-	AssignExpression(x) -> check_assign x
-	| _ -> [""]
-
-let r = []
-
-let check_expression_line ast = 
-	match ast with
-	| ExpressionLine(x) -> check_assign_expression x
-	| _ -> ["FAILURE, not expression line"]
+let test_dir indir outdir = 
+	let in_files = (file_filter indir) in
+	let test_file_fun = fun infile in_dir ->
+		let ast = string_list_of_file (abs_input_testfile indir infile) and
+ 		    expc = string_list_of_file (abs_output_testfile_of_input outdir infile) in 
+	print_result ast expc infile
+	in
+	List.map test_file_fun in_files
 
 
-
-let handle_assgin = fun ast
-	-> let rs = List.iter check_expression_line ast in
-		 List.append r rs; print
 
 let _ =
-	let infile = Sys.argv.(1) in
-	let ast = ast_of_file Parser.root Scanner.token infile
-	in handle_assign ast
-	 
-	
-
+	let indir = Sys.argv.(1) in
+	let outdir = Sys.argv.(1) in
+	test_dir indir outdir

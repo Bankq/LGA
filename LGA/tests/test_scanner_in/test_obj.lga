@@ -1,6 +1,7 @@
 square = {
+	str : "\thello world!\tI'm a square"
 	run : circle
-	pos : [2, 5]
+	pos : [-2.5e1, 5]
 	vec : [1, 1]
 	delay : 5
 }

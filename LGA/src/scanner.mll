@@ -12,7 +12,7 @@ let digit = ['0'-'9']
 let id = ('_'|letter) (letter|digit|'_')*
 let exp = 'e'('+'|'-')?['0'-'9']+
 let num = '-'? (digit)+ ('.'? (digit)* exp?|exp)
-let string = '"' (letter|digit|punc)*  '"'
+let string = '"' (letter|digit|punc|"\\t")*  '"'
 
 rule token = parse
 		| newline			{ indent lexbuf }
