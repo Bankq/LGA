@@ -98,7 +98,7 @@ let handle_parenthetical f a =
                         handle_body f x
 
 let handle_arguments f a = 
-  log("ArgList");
+  log("Arguments");
   handle_arg_list f a
 
 let handle_invocation fe fv a =
