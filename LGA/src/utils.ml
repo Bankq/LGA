@@ -5,7 +5,15 @@ open Parser
 open Printf
 let log x = print_endline x
 
-(** Returns the number of outdent(s) that occur at the beginning of one line according to the number of white spaces len and a stack. The stack holds the size of indents sequentially. the function is called when the new line has at least one outdent. The size of indent has to match some smaller level and the function returns a value equal or larger than 1, otherwise returns -1. *)
+(** Returns the number of outdent(s) that occur at the
+    beginning of one line according to the number of
+    white spaces and a stack. The stack sequentially holds
+    the size of pre-occurred indents that haven't been
+    matched yet by outdents. the function is called when
+    the new line has at least one outdent. The size of 
+    indent has to match some smaller level and the function 
+    returns a value equal or larger than 1, otherwise 
+    returns -1. *)
 let outdent_count = fun len stack -> 
   let rec helper inc = 
     if (Stack.top stack) > len then
@@ -17,7 +25,7 @@ let outdent_count = fun len stack ->
     else inc
   in helper 0
 
-(** Returns all the test files' filenames in the directory dir. *)
+(** Returns all the test files' filenames in a directory. *)
 let raw_testfile_list_of_dir = fun dir ->
   let infile_array = Sys.readdir dir in
   let raw_file_list = Array.to_list infile_array in
@@ -25,21 +33,27 @@ let raw_testfile_list_of_dir = fun dir ->
     if (String.sub file 0 4) = "test" then true else false in
   List.filter is_test_file raw_file_list
 
-(** Returns input files' path by concatenating directory name indir and filename. *)
+(** Returns a input file's path by concatenating directory 
+    and filename. *)
 let abs_input_testfile = fun indir filename->
   String.concat "" [indir;filename]
 
-(** Returns expected output files' path by concatenating directory name outdir and filename. *)
+(** Returns a expected output file's path by concatenating 
+    directory and filename. *)
 let abs_output_testfile_of_input = fun outdir filename->
   String.concat "" [outdir;filename;".out"]
 
-(** Print the PASS/FAIL result of a test file. Testfun is the function that returns testing results for input file infile and its expected output file outfile. *)
+(** Return the PASS/FAIL result string of a test file with a
+    test function. A test function is the function that returns
+    testing results for a input file and its expected output 
+    file. *)
 let get_test_result_string = fun testfun infile outfile ->
   let result = (testfun infile outfile) in
   if result then Printf.sprintf "Test %s PASS!" infile
   else Printf.sprintf "Test %s FAIL!" infile 
 
-(** Print the PASS/FAIL results for all input test files in a directory indir with their expected output files in directory outdir. *)
+(** Print the results of testing all test files in indir, 
+    their expected output files are in outdir. *)
 let test_dir test_fun indir outdir = 
     let raw_list = raw_testfile_list_of_dir indir in
     let print = fun file ->
@@ -49,7 +63,9 @@ let test_dir test_fun indir outdir =
   in
   List.map print raw_list
 
-(** Return a new list with int token OUTDENT_COUNT in the list expanded into cooresponding number of OUTDENT token(s), and TERMINATOR token(s) added to every line break. *)
+(** Return a new list with int token OUTDENT_COUNT in the list
+    expanded into cooresponding number of OUTDENT token(s), and 
+    TERMINATOR token(s) added after each INDENT and set of OUTDENT(s). *)
 let rec expand_token_list = fun list ->
   let rec expand_token = fun token ->
     match token with
@@ -65,7 +81,8 @@ let rec expand_token_list = fun list ->
     | _ -> [token] in
   List.flatten (List.map expand_token list)
 
-(** Use tokenizer to process lexbuf and return the generated token list. *)
+(** Use tokenizer to process lexbuf and return the generated
+    token list. The end of lexbuf is detected *)
 let token_list_of_lexbuf lexbuf tokenizer stopsign =
   let rec helper lexbuf list = 
     let token = tokenizer lexbuf in 
