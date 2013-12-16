@@ -97,7 +97,15 @@ let string_of_token : Parser.token -> string = function
   | EOF ->
      "EOF"
 
-(** Returns the number of outdent(s) that occur at the beginning of one line according to the number of white spaces len and a stack. The stack holds the size of indents sequentially. the function is called when the new line has at least one outdent. The size of indent has to match some smaller level and the function returns a value equal or larger than 1, otherwise returns -1. *)
+(** Returns the number of outdent(s) that occur at the
+    beginning of one line according to the number of
+    white spaces and a stack. The stack sequentially holds
+    the size of pre-occurred indents that haven't been
+    matched yet by outdents. the function is called when
+    the new line has at least one outdent. The size of 
+    indent has to match some smaller level and the function 
+    returns a value equal or larger than 1, otherwise 
+    returns -1. *)
 let outdent_count = fun len stack -> 
   let rec helper inc = 
     if (Stack.top stack) > len then
