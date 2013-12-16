@@ -16,7 +16,7 @@ let num = '-'? (digit)+ ('.'? (digit)* exp?|exp)
 let string = '"' (letter|digit|punc|"\\t")*  '"'
 
 rule token = parse
-		| newline			{ indent lexbuf }
+		| newline			{ incr_linenum lexbuf; indent lexbuf }
 		| [' ' '\t']        { token lexbuf }
 		| '#'               { comment lexbuf }
 		| '@'               { THIS }
@@ -93,4 +93,5 @@ and comment = parse
 
 {
   Stack.push 0 _indent_stack
+
 }

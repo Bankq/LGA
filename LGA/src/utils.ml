@@ -3,6 +3,7 @@
 open Ast
 open Parser
 open Printf
+open Lexing
 let log x = print_endline x
 
 (** Returns the number of outdent(s) that occur at the
@@ -191,3 +192,11 @@ let ast_of_file myparser tokenizer filename =
     | h :: t -> token_list := t; h
   in
   myparser tokenize (Lexing.from_string "")
+
+(** Increment line number information of lexbuf. *)
+let incr_linenum lexbuf =
+  let pos = lexbuf.lex_curr_p in
+  lexbuf.lex_curr_p <- { pos with
+    pos_lnum = pos.pos_lnum + 1;
+    pos_bol = pos.pos_cnum;
+  }
