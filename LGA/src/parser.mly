@@ -116,14 +116,14 @@ accessor:
 	| index { IndexAccessor($1) }
 	
 obj:
-    | LBRACE assignList RBRACE { Object($2) }
+    | LBRACE assignList TERMINATOR RBRACE { Object($2) }
 
 assignList:
 	| /* nothing */ { [] } 
 	| assignObj { [$1] }
-	| assignList COMMA assignObj { List.append $1 [$3] }
-	| assignList COMMA TERMINATOR assignObj { List.append $1 [$4] }
-	| assignList COMMA INDENT assignList OUTDENT { List.append $1 $4 }
+	| assignList TERMINATOR assignObj { List.append $1 [$3] }
+/*	| assignList TERMINATOR assignObj { List.append $1 [$4] } */
+	| assignList INDENT assignList OUTDENT { List.append $1 $3 }
 
 invocation:
 	| value arguments	{ Invocation($1, $2) }
