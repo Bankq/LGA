@@ -4,6 +4,7 @@ open Ast
 open Parser
 open Printf
 open List
+open Lexing
 let log x = print_endline x
 
 (** Match tokens to strings reflecting their names. *)
@@ -200,3 +201,11 @@ let ast_of_file myparser tokenizer filename =
     | h :: t -> log (string_of_token h);token_list := t; h
   in
   myparser tokenize (Lexing.from_string "")
+
+(** Increment line number information of lexbuf. *)
+let incr_linenum lexbuf =
+  let pos = lexbuf.lex_curr_p in
+  lexbuf.lex_curr_p <- { pos with
+    pos_lnum = pos.pos_lnum + 1;
+    pos_bol = pos.pos_cnum;
+  }
