@@ -43,20 +43,19 @@ let handle_identifier a =
 (*   log("Array"); *)
 (*   handle_arg_list f a *)
 
-(* let handle_this_property a = *)
-(*   "this."^(handle_identifier a) *)
+let handle_this_property a =
+  "this."^(handle_identifier a)
 
-(* let handle_obj_assignable a =  *)
-(*   match a with *)
-(*   | IdentifierObjAssignable(x) -> *)
-(*      handle_identifier x *)
-(*   | ThisPropertyObjAssignable(x) -> *)
-(*      handle_this_property x *)
+let handle_obj_assignable a =
+  match a with
+  | IdentifierObjAssignable(x) ->
+     handle_identifier x
+  | ThisPropertyObjAssignable(x) ->
+     handle_this_property x
 
-(* (\* handle_assign *\) *)
 (* let handle_assign_obj f a = *)
 (*   match a with *)
-(*   | AssignObj(x, y) ->  *)
+(*   | AssignObj(x, y) -> *)
 (*      Printf.printf "ASSIGN LEFT: %s\n" (handle_obj_assignable x); *)
 (*      f y *)
 
@@ -175,14 +174,14 @@ let handle_body fe ft a =
 (*   log("Block"); *)
 (*   handle_body f a *)
 
-let handle_param_list a =
-  List.map handle_identifier a
+(* let handle_param_list a = *)
+(*   List.map handle_identifier a *)
 
-let handle_code f a =
-  match a with
-  | Code(x, y) -> 
-     let param_list = handle_param_list x in
-     FunctionBody(param_list, "FUNBODY")
+(* let handle_code f a = *)
+(*   match a with *)
+(*   | Code(x, y) ->  *)
+(*      let param_list = handle_param_list x in *)
+(*      FunctionBody(param_list, "FUNBODY") *)
 
 (* let handle_assign f a = *)
 (*   match a with *)
@@ -255,7 +254,7 @@ let handle_top_obj f obj =
        let construct aobj = 
        (* return a TopId(string, string) *)
          match aobj with
-         | AssignObj(x, y) -> TopId("A", "B")
+         | AssignObj(x, y) -> TopId(handle_obj_assignable x, "BODY")
        in
        TopIdList(List.map construct o)
     
@@ -275,8 +274,6 @@ let handle_top_level f a =
        end
      in
      begin match right with
-             | CodeExpression(code) ->
-                FunVar_lga(TopFun(id, (handle_code f code)))
              | ValueExpression(o) ->
                 begin match o with
                       | AssignableValue(a) ->
