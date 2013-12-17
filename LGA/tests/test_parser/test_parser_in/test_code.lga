@@ -1,0 +1,5 @@
+fun () -> 
+    print(a)
+fun (a, b) ->
+    c = a + b
+    return c + 1

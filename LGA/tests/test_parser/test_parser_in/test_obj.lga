@@ -1,0 +1,15 @@
+obj1 = {
+            a : [0, 0]
+            b : 1
+            c : print
+}
+obj2 = {
+            a : fun (x, y) ->
+                    return x + y
+            b : fun (x) ->
+                    if x == 1
+                        x = 2
+                    else
+                        x = 3
+            c : [1, 2]
+}
