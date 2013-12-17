@@ -88,7 +88,7 @@ let handle_obj_assignable a =
  * a: line
  * return a var_lga
  *)
-let handle_line fe ft a =
+let handle_top_line fe ft a =
   match a with
   | ExpressionLine(line) ->
      begin match line  with
@@ -103,8 +103,8 @@ let handle_line fe ft a =
  * a: body
  * return a list of var_lga
  *)
-let handle_body fe ft a =
-  List.map (handle_line fe ft) a
+let handle_top_body fe ft a =
+  List.map (handle_top_line fe ft) a
 
 (* let handle_parenthetical f a =  *)
 (*   match a with *)
@@ -306,9 +306,9 @@ let rec handle_expr a =
 (*      handle_for handle_expr x *)
 
 (* return a list of var_lga *)
-let handle_root f body = 
-  handle_body f handle_top_level body
+let handle_top_root f body = 
+  handle_top_body f handle_top_level body
 
 let lga_of_file filename = 
   let root = ast_of_file Parser.root Scanner.token filename in
-  handle_root handle_expr root
+  handle_top_root handle_expr root
