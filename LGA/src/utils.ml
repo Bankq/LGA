@@ -198,7 +198,7 @@ let ast_of_file myparser tokenizer filename =
   let tokenize lexbuf = 
     match !token_list with
     | [] -> Parser.EOF
-    | h :: t -> log (string_of_token h);token_list := t; h
+    | h :: t -> token_list := t; h
   in
   myparser tokenize (Lexing.from_string "")
 
