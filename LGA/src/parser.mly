@@ -117,6 +117,7 @@ accessor:
 	
 obj:
     | LBRACE assignList TERMINATOR RBRACE { Object($2) }
+    | LBRACE assignList RBRACE { Object($2) }
 
 assignList:
 	| /* nothing */ { [] } 
