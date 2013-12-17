@@ -1,5 +1,4 @@
 open Printf
-
 open Ast
 open Scanner
 open Parser
@@ -74,7 +73,7 @@ let handle_assign_list f a =
 
 let handle_obj f a = 
   match a with
-  | Object(x) -> "{" ^ (handle_assign_list f x) ^ "}"
+  | Object(x) -> "{\n" ^ (handle_assign_list f x) ^ "\n}"
 								
 let handle_return f a =
   match a with
@@ -89,9 +88,11 @@ let handle_line f a =
   match a with
   | ExpressionLine(x) -> f x
   | StatementLine(x) -> handle_statement f x
-												
+							
+let add_semicom = fun a -> a ^ ";"
+
 let handle_body f a = 
-	String.concat ";\n" (List.map (handle_line f) a)
+	String.concat "\n" (List.map add_semicom (List.map (handle_line f) a))
 
 let handle_parenthetical f a = 
   match a with
@@ -137,23 +138,31 @@ let handle_param_list a =
 
 let handle_code f a =
   match a with
-  | Code(x, y) -> log("Code");
-                  handle_param_list x;
-                  handle_block f y
+  | Code(x, y) -> let paraliststr = handle_param_list x in
+                    let blockstr = handle_block f y in
+                      let herestr = "(" ^ paraliststr ^ ")\n{\n" ^ blockstr ^ "\n}" in
+                        herestr
 
 let handle_assign f a = 
   match a with
-  | Assign(x, y) -> (handle_assignable f (handle_value f) x) ^ " = " ^ (f y)
+  | Assign(x, y) -> 
+      let check_code i=  
+         match i with
+        | CodeExpression(i) -> true
+        | _ -> false
+      in
+    if check_code y then "function " ^ (handle_assignable f (handle_value f) x) ^ (f y)
+  else (handle_assignable f (handle_value f) x) ^ " = " ^ (f y)
 
 let rec handle_if_block f a =
   match a with
-  | IfBlock(x, y) -> "if ( " ^ (f x) ^ " ) \n{" ^ (handle_block f y) ^ "\n}"
+  | IfBlock(x, y) -> "if ( " ^ (f x) ^ " ) \n{\n" ^ (handle_block f y) ^ "\n}"
   | IfBlockSeq(x, y, z) -> 
-		(handle_if_block f x) ^ "else if ( " ^ (f y) ^ " ) \n{" ^ (handle_block f z) ^ "\n}"
+		(handle_if_block f x) ^ "else if ( " ^ (f y) ^ " ) \n{\n" ^ (handle_block f z) ^ "\n}"
 		
 let handle_if f a = 
   match a with
-  | IfElse(x, y) -> (handle_if_block f x) ^ " else \n{" ^ (handle_block f y) "}"
+  | IfElse(x, y) -> (handle_if_block f x) ^ " else {\n" ^ (handle_block f y) ^ "\n}"
   | IfOnly(x) -> handle_if_block f x
 
 
@@ -204,7 +213,7 @@ let rec handle_expr a =
   | InvocationExpression(x) -> handle_invocation handle_expr (handle_value handle_expr) x
   | CodeExpression(x) -> handle_code handle_expr x
   | OperationExpression(x) -> handle_operation handle_expr x
-  | AssignExpression(x) -> handle_assign handle_expr x
+  | AssignExpression(x) -> (handle_assign handle_expr x)
   | IfExpression(x) -> handle_if handle_expr x
   | WhileExpression(x) -> handle_while handle_expr x
   | ForExpression(x) -> handle_for handle_expr x
@@ -212,7 +221,29 @@ let rec handle_expr a =
 let handle_root f body = 
   handle_body f body
 
-  let get_code_str filename =
+let rec explode = function
+    "" -> []
+  | s  -> (String.get s 0) ::
+          explode (String.sub s 1 ((String.length s) - 1))
+
+let rec implode = function
+    []       -> ""
+  | charlist -> (String.make 1 (List.hd charlist)) ^
+                                  (implode (List.tl charlist));;
+
+let rec remove x =
+  match x with
+  | a :: (b :: c)  ->
+    if a == '}' && b == ';' then a :: (remove c)
+        else a :: (remove (List.tl x))
+  | _ -> x
+ 
+let get_code_str filename =
   let root = ast_of_file Parser.root Scanner.token filename in
   let b = handle_root handle_expr root in
-    b
+    implode (remove (explode b))
+
+
+
+
+
