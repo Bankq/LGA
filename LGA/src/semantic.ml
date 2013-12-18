@@ -157,18 +157,16 @@ let handle_if f a =
   | IfElse(x, y) -> (handle_if_block f x) ^ " else {\n" ^ (handle_block f y) ^ "\n}"
   | IfOnly(x) -> handle_if_block f x
 
-
 let handle_while_source f a =
   match a with
   | WhileSource(x) -> f x
-   (*f x*) 
 
 let handle_while f a = 
   match a with
   | While(x,y) -> let whilesourcestr = handle_while_source f x in
                       let blockstr = handle_block f y in
-                        let herestr = makestr ["while ("; whilesourcestr; ")\n{\n ";blockstr;"\n}"] in
-                          herestr
+                        makestr ["while ("; whilesourcestr; ")\n{\n ";blockstr;"\n}"]
+
 let handle_for_var a = 
   match a with
   | ForVar(x) -> let idstr = handle_identifier x in
@@ -176,8 +174,8 @@ let handle_for_var a =
 
 let handle_for_start a =
   match a with
-  | ForStart(x) ->  let varstr = handle_for_var x in
-              varstr
+  | ForStart(x) ->  handle_for_var x
+           
 
 let handle_for_source f a = 
   match a with
@@ -187,16 +185,14 @@ let handle_for_source f a =
 let handle_for_body f a = 
   match a with
   | ForBody(x, y) -> let forstartstr = handle_for_start x in
-                      let forsourcestr = handle_for_source f y in
-                        let herers = makestr ["("; forstartstr;" in ";forsourcestr;")"] in
-                          herers
+                     let forsourcestr = handle_for_source f y in
+                     makestr ["("; forstartstr;" in ";forsourcestr;")"]
 
 let handle_for f a =
   match a with
   | For(x, y) -> let forbodystr = handle_for_body f x in
-                  let blockstr = handle_block f y in
-                    let herestr = makestr ["for ";forbodystr;"\n{\n "; blockstr; "\n }"] in
-                      herestr
+                 let blockstr = handle_block f y in
+                 makestr ["for ";forbodystr;"\n{\n "; blockstr; "\n }"]
 
                     
 let rec handle_expr a = 
@@ -221,13 +217,13 @@ let rec explode = function
 let rec implode = function
     []       -> ""
   | charlist -> (String.make 1 (List.hd charlist)) ^
-                                  (implode (List.tl charlist));;
+                  (implode (List.tl charlist))
 
 let rec remove x =
   match x with
   | a :: (b :: c)  ->
     if a == '}' && b == ';' then a :: (remove c)
-        else a :: (remove (List.tl x))
+    else a :: (remove (List.tl x))
   | _ -> x
  
 (* Line handler.
@@ -302,4 +298,4 @@ let lga_of_file filename =
 let get_code_str filename =
   let root = ast_of_file Parser.root Scanner.token filename in
   let b = handle_root handle_expr root in
-    implode (remove (explode b))
+  implode (remove (explode b))

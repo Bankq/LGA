@@ -8,7 +8,8 @@ open String
 let lga_translate_type a = 
   match a with
   | "Rectangle" -> "two.makeRectangle"
-  | _ -> "two.makeCircle"
+  | "Circle" -> "two.makeCircle"
+  | _ as field-> "two.make"^field
   
 let lga_get_by_field field a = 
   match a with
@@ -40,7 +41,7 @@ let rec lga_obj_type id a =
                        ::(lga_obj_type id t)
                     | "pos" -> lga_obj_type id t
                     | "size" -> lga_obj_type id t
-                    | _ as field -> (id^"."^field^" = "^value^"\n") :: lga_obj_type id t
+                    | _ as field -> (id^"."^field^" = "^value^";\n") :: lga_obj_type id t
                end
       end
    | _ -> []
