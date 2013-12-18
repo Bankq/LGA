@@ -1,0 +1,4 @@
+for a in [1, 2, 3]
+	b = a
+for b in [1, 2]
+	c = b

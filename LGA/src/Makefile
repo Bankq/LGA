@@ -6,10 +6,12 @@ PARSER = parser
 SCANNER = scanner
 AST = ast
 SEMANTIC = semantic
+LGA = lga
 UTILS = utils
+CODEGEN = codegen
 
-all: asti parsero scannero semantico utilso
-	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo $(SEMANTIC).cmo -o $(SEMANTIC)
+all: codegeno
+	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo $(SEMANTIC).cmo $(CODEGEN).cmo -o $(LGA)c
 utilso: parsero
 	$(CC) -c $(UTILS).ml
 scannero: scanner utilso
@@ -24,9 +26,16 @@ parser:
 	$(YACC) $(PARSER).mly
 asti:
 	$(CC) -c $(AST).mli
-semantico: asti parsero
+semantico: asti lgai parsero scannero
 	$(CC) -c $(SEMANTIC).ml
+lgai:
+	$(CC) -c $(LGA).mli
+codegeno: semantico
+	$(CC) -c $(CODEGEN).ml
+token: scannero parsero
+	$(CC) -c token.ml
+	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo token.cmo -o token
 
 clean:
-	rm -rf *.cmo *.cmi $(SEMANTIC) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml
+	rm -rf *.cmo *.cmi $(LGA) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml token
 

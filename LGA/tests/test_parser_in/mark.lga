@@ -31,28 +31,28 @@
 
 %%
 
-root:
+1 root:
 	| /* nothing */ { [] }
 	| body { $1 }
 	| block TERMINATOR { $1 }
 
-body:
+1 body:
 	| line { [$1] }
 	| body TERMINATOR line { List.append $1 [$3] }
 	| body TERMINATOR { $1 }
 
-line:
+1 line:
 	| expression { ExpressionLine($1) }
 	| statement { StatementLine($1) }
 
-statement:
+1 statement:
 	| return { ReturnStatement($1) }
 	| STATEMENT { LiteralStatement(Literal($1)) }
 
-return:
+1 return:
 	| RETURN expression { Return($2) } 
 
-expression:
+1 expression:
 	| value { ValueExpression($1) } 
 	| invocation { InvocationExpression($1) } 
 	| code { CodeExpression($1) }
@@ -62,7 +62,7 @@ expression:
 	| whiletype { WhileExpression($1) }
 	| fortype { ForExpression($1) }
 
-operation:
+1 operation:
 	| lop PLUS expression		{ Binop($1, Plus,$3) }
 	| lop MINUS expression		{ Binop($1, Minus, $3) }
 	| lop TIMES expression		{ Binop($1, Times, $3) }
@@ -78,14 +78,14 @@ operation:
 	| lop GEQ expression		{ Binop($1, Geq, $3) }
 	| NOT expression			{ Neg($2) }
 
-lop:
+1 lop:
 	| value { ValueLop($1) }
 	| invocation { InvocationLop($1) }
 
-code:
+1 code:
 	| FUN LPAREN paramList RPAREN ARROW block { Code($3, $6) }
 
-value:
+1 value:
     | assignable { AssignableValue($1) }
 	| literal { LiteralValue($1) }
 	| parenthetical { ParentheticalValue($1) }
@@ -116,15 +116,14 @@ accessor:
 	| index { IndexAccessor($1) }
 	
 obj:
-    | LBRACE assignList TERMINATOR RBRACE { Object($2) }
     | LBRACE assignList RBRACE { Object($2) }
 
 assignList:
 	| /* nothing */ { [] } 
 	| assignObj { [$1] }
-	| assignList TERMINATOR assignObj { List.append $1 [$3] }
-/*	| assignList TERMINATOR assignObj { List.append $1 [$4] } */
-	| assignList INDENT assignList OUTDENT { List.append $1 $3 }
+	| assignList COMMA assignObj { List.append $1 [$3] }
+	| assignList COMMA TERMINATOR assignObj { List.append $1 [$4] }
+	| assignList COMMA INDENT assignList OUTDENT { List.append $1 $4 }
 
 invocation:
 	| value arguments	{ Invocation($1, $2) }
@@ -133,53 +132,53 @@ arguments:
 	| LPAREN RPAREN { [] }
 	| LPAREN argList RPAREN { $2 }
 
-argList:
+1 argList:
 	| expression { [$1] } 
 	| argList COMMA expression { List.append $1 [$3] }
 	| argList COMMA TERMINATOR expression { List.append $1 [$4] }
 	| INDENT argList OUTDENT { $2 }
 	| argList COMMA INDENT argList OUTDENT { List.append $1 $4 }
 
-paramList:
+1 paramList:
 	| /* nothing */		{ [] }
 	| identifier { [$1] }
 	| paramList COMMA identifier { List.append $1 [$3] }
 	| paramList COMMA TERMINATOR identifier { List.append $1 [$4] }
 	| paramList COMMA INDENT paramList OUTDENT {List.append $1 $4 }
 
-index:
+1 index:
 	| LBK indexValue RBK { Index($2) }
 
-indexValue:
+1 indexValue:
 	| NUM { Literal($1) }
 
-parenthetical:
+1 parenthetical:
 	| LPAREN body RPAREN { Parenthetical($2) }
 	| LPAREN INDENT body OUTDENT RPAREN { Parenthetical($3) }
 
-array:
+1 array:
     | LBK RBK { [] }
     | LBK argList RBK { $2 }
 
-block:
+1 block:
 	| INDENT OUTDENT {[]}
 	| INDENT body OUTDENT { $2 }
 
-identifier:
+1 identifier:
 	| IDENTIFIER	{ Literal($1) }
 
-literal:
+1 literal:
 	| NUM		{ Literal($1) }
 	| STRING	{ Literal($1) }
 	| NULL		{ Literal($1) }
 	| BOOL		{ Literal($1) }
 
-thisProperty:
+1 thisProperty:
     | THIS identifier { $2}
 
 iftype:
-	| ifBlock		        { IfOnly($1) }
 	| ifBlock ELSE block	{ IfElse($1, $3) }
+	| ifBlock		{ IfOnly($1) }
 
 ifBlock:
 	| IF expression block			    { IfBlock($2, $3) }
