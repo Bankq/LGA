@@ -37,5 +37,5 @@ token: scannero parsero
 	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo token.cmo -o token
 
 clean:
-	rm -rf *.cmo *.cmi $(CODEGEN) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml token
+	rm -rf *.cmo *.cmi $(LGA) $(SCANNER).mli $(SCANNER).ml $(PARSER).mli $(PARSER).ml token
 
