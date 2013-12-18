@@ -87,7 +87,9 @@ let handle_line f a =
   | ExpressionLine(x) -> f x
   | StatementLine(x) -> handle_statement f x
 							
-let add_semicom = fun a -> a ^ ";"
+let add_semicom = fun a -> 
+  let len = String.length a in
+    if a.[len-1] = '}' then a else a ^ ";"
 
 let handle_body f a = 
 	String.concat "\n" (List.map add_semicom (List.map (handle_line f) a))
