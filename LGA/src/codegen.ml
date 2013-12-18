@@ -12,8 +12,7 @@ let lga_translate_type a =
   
 let lga_get_by_field field a = 
   match a with
-  | field -> true
-  | _ -> false
+  | TopId(k, v) -> if k = field then true else false
 
 let lga_find_field field l =
   try 
@@ -47,24 +46,29 @@ let rec lga_obj_type id a =
    | _ -> []
 
 
+let lga_top_id a = 
+  match a with
+  | TopId(key, value) ->
+     "var "^key^" = "^value
 
- (* return [ "var ID;" "ID.key = value;" "var ID_KEY = function ..." ...]*)
- let lga_top_obj a =
-   match a with
-   | TopObj(id, alist) -> 
-      concat ""
-      (append ["var ";id;";\n"] 
-      begin match alist with
-            | TopIdList(list) -> (lga_obj_type id list)
-      end)
+(* return [ "var ID;" "ID.key = value;" "var ID_KEY = function ..." ...]*)
+let lga_top_obj a =
+  match a with
+  | TopObj(id, alist) -> 
+     concat ""
+            (append ["var ";id;";\n"] 
+                    begin match alist with
+                          | TopIdList(list) -> (lga_obj_type id list)
+                    end)
 
 
- let gen_code a =
-   match a with
-   | ObjVar_lga(x) -> lga_top_obj x
-   | _ -> ""
+let gen_code a =
+  match a with
+  | ObjVar_lga(x) -> lga_top_obj x
+  | IdVar_lga(x) -> lga_top_id x
+  | _ -> ""
 
- let _ = 
-   let filename = Sys.argv.(1) in
-   let lga = lga_of_file filename in
-   List.map print_endline (List.map gen_code lga)
+let _ = 
+  let filename = Sys.argv.(1) in
+  let lga = lga_of_file filename in
+  List.map print_endline (List.map gen_code lga)
