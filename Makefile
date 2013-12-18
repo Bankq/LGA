@@ -8,11 +8,13 @@ AST = LGA/src/ast
 LGA = LGA/src/semantic
 UTILS = LGA/src/utils
 
-.PHONY: all clean
+.PHONY: all lga clean
 
-doc: all
-	$(DOC) -I $(SRC) -d $(REDIRECT) -html -g $(SCANNER).ml $(PARSER).mli $(UTILS).ml $(LGA).ml
-all:
+all: lga
+lga:
 	make -C $(SRC)
+doc: lga
+	$(DOC) -I $(SRC) -d $(REDIRECT) -html -g $(SCANNER).ml $(PARSER).mli $(UTILS).ml $(LGA).ml
 clean:
-	rm -rf $(REDIRECT)*.html $(REDIRECT)*.css
+	make -C $(SRC) clean
+	rm -rf $(REDIRECT)*.html $(REDIRECT)*.css lgac

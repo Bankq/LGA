@@ -11,7 +11,7 @@ UTILS = utils
 CODEGEN = codegen
 
 all: codegeno
-	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo $(SEMANTIC).cmo $(CODEGEN).cmo -o $(LGA)c
+	$(CC) $(UTILS).cmo $(PARSER).cmo $(SCANNER).cmo $(SEMANTIC).cmo $(CODEGEN).cmo -o ../../$(LGA)c
 utilso: parsero
 	$(CC) -c $(UTILS).ml
 scannero: scanner utilso

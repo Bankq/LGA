@@ -297,7 +297,7 @@ let lga_of_file filename =
   let root = ast_of_file Parser.root Scanner.token filename in
   handle_top_root handle_expr root
 
-let get_code_str filename =
+let js_of_file filename =
   let root = ast_of_file Parser.root Scanner.token filename in
   let b = handle_root handle_expr root in
   implode (remove (explode b))

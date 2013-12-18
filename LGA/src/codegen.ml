@@ -5,6 +5,8 @@ open Semantic
 open List
 open String
 
+type output = Js | Lga
+
 let lga_translate_type a = 
   match a with
   | "Rectangle" -> "two.makeRectangle"
@@ -63,13 +65,52 @@ let lga_top_obj a =
                     end)
 
 
-let gen_code a =
+let lga_generate_code a =
   match a with
   | ObjVar_lga(x) -> lga_top_obj x
   | IdVar_lga(x) -> lga_top_id x
   | _ -> ""
 
+let gen_code filename t = 
+  match t with
+  | Lga -> 
+     let lga = lga_of_file filename in
+     String.concat "\n" (List.map lga_generate_code lga)
+  | Js ->
+     js_of_file filename
+
+let temp_head = 
+  "var elem = document.getElementById('lga-div');
+   var params = { width: 1080, height: 1024 };
+   var two = new Two(params).appendTo(elem);
+   var run = function(f) {}"
+
+let temp_tail = 
+  "two.bind('update', run).play();"
+
+let get_mode m = 
+  if m then Lga else Js
+
+let mode = ref true
+let in_file = ref "test.lga"
+let out_file = ref "lga.js"
+let get_in_name x = in_file := x
+
+let spec = [
+  ("-js", Arg.Clear mode, "Enable Javascript mode");
+  ("-o", Arg.Set_string out_file, "Output file");
+]
+let usage = "lgac: [-js] [-o outputfile] inputfile"
+
+let gen_output file t channel = 
+  match t with
+  | Lga ->
+     Printf.fprintf channel "%s\n%s\n%s\n" temp_head (gen_code file t) temp_tail
+  | _ -> Printf.fprintf channel "%s\n" (gen_code file t)
+
 let _ = 
-  let filename = Sys.argv.(1) in
-  let lga = lga_of_file filename in
-  List.map print_endline (List.map gen_code lga)
+  Arg.parse spec get_in_name usage;
+  let oc = open_out !out_file in
+  gen_output !in_file (get_mode !mode) oc;
+  close_out oc
+  
