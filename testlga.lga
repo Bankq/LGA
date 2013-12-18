@@ -1,0 +1,37 @@
+rect = {
+    type : Rectangle
+    size : [100, 100]
+    pos : [300, 300]
+    scale : 0.8
+    fill : "#FF8000"
+    stroke : "orangered"
+}
+
+circle = {
+    type : Circle
+    size : [100]
+    pos : [500, 300]
+    scale : 0.9
+    fill : "#0000FF"
+    stroke : "black"
+}
+
+circle_translation = fun (frameCount) ->
+    t = fun (o) ->
+        o.y = o.y + 1
+        if o.y > 1080
+            o.y = 0
+    return t(circle.translation)
+
+rect_rotation = fun (frameCount) ->
+         frame = frameCount % 60
+         rect.rotation = frame * 60.0 / Math.PI
+
+rect_translation = fun (frameCount) ->
+            rect.translation.x = rect.translation.x + 1
+
+run = fun (f) ->
+    rect_rotation(f)
+    rect_translation(f)
+    circle_translation(f)
+
