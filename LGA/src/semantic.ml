@@ -229,10 +229,18 @@ let rec handle_expr a =
   | WhileExpression(x) -> handle_while handle_expr x
   | ForExpression(x) -> handle_for handle_expr x
 
-let handle_expr_topLevel a = 
+let handle_top_level_expr a = 
   match a with
+  | ValueExpression(x) -> (handle_value handle_expr x) ^ ";"
+  | InvocationExpression(x) -> (handle_invocation handle_expr (handle_value handle_expr) x) ^ ";"
+  | CodeExpression(x) -> (handle_code handle_expr x)
+  | OperationExpression(x) -> (handle_operation handle_expr x) ^ ";"
   | AssignExpression(x) -> (handle_assign handle_expr x) ^ ";"
-  | _ -> handle_expr a
+  | IfExpression(x) -> handle_if handle_expr x
+  | WhileExpression(x) -> handle_while handle_expr x
+  | ForExpression(x) -> handle_for handle_expr x
+
+
 
 
 let handle_root f body = 
@@ -322,7 +330,7 @@ let handle_top_root f body =
 
 let lga_of_file filename = 
   let root = ast_of_file Parser.root Scanner.token filename in
-  handle_top_root handle_expr_topLevel root
+  handle_top_root handle_top_level_expr root
 
 let js_of_file filename =
   let root = ast_of_file Parser.root Scanner.token filename in
