@@ -1,0 +1,41 @@
+circle = {
+    type : Circle
+    size : [100]
+    pos : [100, 100]
+    scale : 0.9
+    fill : "#00008B"
+    stroke : "black"
+    v :
+        {
+            x : 2
+            y : 0
+        }
+}
+
+G = 0.16
+
+add_x = fun (o, i) -> o.translation.x = o.translation.x + i
+add_y = fun (o, i) -> o.translation.y = o.translation.y + i
+c_x = fun (o) ->
+    add_x(o, o.v.x)
+    if o.translation.x > 980
+        o.translation.x = 980
+        o.v.x = 0 - 0.8 * o.v.x
+    else if o.translation.x < 100
+        o.translation.x = 100
+        o.v.x = 0.8 *(0 - o.v.x)
+
+c_y = fun (t, o) ->
+    add_y(o, o.v.y + 0.5 * G)
+    o.v.y = o.v.y + G
+    if o.translation.y > 500
+        o.translation.y = 500
+        o.v.y = 0.8 * (0 - o.v.y)
+
+circle_translation = fun (frameCount) ->
+    c_x(circle)
+    c_y(frameCount, circle)
+
+run = fun (f) ->
+    circle_translation(f)
+

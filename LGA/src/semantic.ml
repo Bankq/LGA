@@ -87,14 +87,34 @@ let handle_line f a =
   | ExpressionLine(x) -> f x
   | StatementLine(x) -> handle_statement f x
 							
-let add_semicom = fun a -> a ^ ";"
+let rec explode = function
+    "" -> []
+  | s  -> (String.get s 0) ::
+          explode (String.sub s 1 ((String.length s) - 1))
+
+let rec implode = function
+    []       -> ""
+  | charlist -> (String.make 1 (List.hd charlist)) ^
+                  (implode (List.tl charlist))
+
+let rec remove x =
+  match x with
+  | a :: (b :: c)  ->
+    if a == '}' && b == ';' then a :: (remove c)
+    else if a == ';' && b == ')' then b :: (remove c)
+    else a :: (remove (List.tl x))
+  | _ -> x
+
+let add_semicom = fun a -> 
+  let len = String.length a in
+    if a.[len-1] = '}' then a else a ^ ";"
 
 let handle_body f a = 
 	String.concat "\n" (List.map add_semicom (List.map (handle_line f) a))
 
 let handle_parenthetical f a = 
   match a with
-  | Parenthetical(x) -> "(" ^ (handle_body f x) ^ ")"                      
+  | Parenthetical(x) -> implode (remove ( explode ("(" ^ (handle_body f x) ^ ")")))                      
 
 let handle_arguments f a = 
   "(" ^ (handle_arg_list f a) ^ ")"
@@ -136,9 +156,12 @@ let handle_param_list a =
 
 let handle_code f a =
   match a with
-  | Code(x, y) -> let paraliststr = handle_param_list x in
+  | BlockCode(x, y) -> let paraliststr = handle_param_list x in
                     let blockstr = handle_block f y in
                     "function (" ^ paraliststr ^ ")\n{\n" ^ blockstr ^ "\n}"
+  | ExpressionCode(x, y) -> let paraliststr = handle_param_list x in
+                            let exprstr = f y in
+                            "function (" ^ paraliststr ^ ") { " ^ exprstr ^"}"
 
 
 let handle_assign f a = 
@@ -157,18 +180,16 @@ let handle_if f a =
   | IfElse(x, y) -> (handle_if_block f x) ^ " else {\n" ^ (handle_block f y) ^ "\n}"
   | IfOnly(x) -> handle_if_block f x
 
-
 let handle_while_source f a =
   match a with
   | WhileSource(x) -> f x
-   (*f x*) 
 
 let handle_while f a = 
   match a with
   | While(x,y) -> let whilesourcestr = handle_while_source f x in
                       let blockstr = handle_block f y in
-                        let herestr = makestr ["while ("; whilesourcestr; ")\n{\n ";blockstr;"\n}"] in
-                          herestr
+                        makestr ["while ("; whilesourcestr; ")\n{\n ";blockstr;"\n}"]
+
 let handle_for_var a = 
   match a with
   | ForVar(x) -> let idstr = handle_identifier x in
@@ -176,8 +197,8 @@ let handle_for_var a =
 
 let handle_for_start a =
   match a with
-  | ForStart(x) ->  let varstr = handle_for_var x in
-              varstr
+  | ForStart(x) ->  handle_for_var x
+           
 
 let handle_for_source f a = 
   match a with
@@ -187,28 +208,40 @@ let handle_for_source f a =
 let handle_for_body f a = 
   match a with
   | ForBody(x, y) -> let forstartstr = handle_for_start x in
-                      let forsourcestr = handle_for_source f y in
-                        let herers = makestr ["("; forstartstr;" in ";forsourcestr;")"] in
-                          herers
+                     let forsourcestr = handle_for_source f y in
+                     makestr ["("; forstartstr;" in ";forsourcestr;")"]
 
 let handle_for f a =
   match a with
   | For(x, y) -> let forbodystr = handle_for_body f x in
-                  let blockstr = handle_block f y in
-                    let herestr = makestr ["for ";forbodystr;"\n{\n "; blockstr; "\n }"] in
-                      herestr
+                 let blockstr = handle_block f y in
+                 makestr ["for ";forbodystr;"\n{\n "; blockstr; "\n }"]
 
                     
 let rec handle_expr a = 
   match a with
-  | ValueExpression(x) -> handle_value handle_expr x
-  | InvocationExpression(x) -> handle_invocation handle_expr (handle_value handle_expr) x
-  | CodeExpression(x) -> handle_code handle_expr x
-  | OperationExpression(x) -> handle_operation handle_expr x
+  | ValueExpression(x) -> (handle_value handle_expr x)
+  | InvocationExpression(x) -> (handle_invocation handle_expr (handle_value handle_expr) x)
+  | CodeExpression(x) -> (handle_code handle_expr x)
+  | OperationExpression(x) -> (handle_operation handle_expr x)
   | AssignExpression(x) -> (handle_assign handle_expr x)
   | IfExpression(x) -> handle_if handle_expr x
   | WhileExpression(x) -> handle_while handle_expr x
   | ForExpression(x) -> handle_for handle_expr x
+
+let handle_top_level_expr a = 
+  match a with
+  | ValueExpression(x) -> (handle_value handle_expr x) ^ ";"
+  | InvocationExpression(x) -> (handle_invocation handle_expr (handle_value handle_expr) x) ^ ";"
+  | CodeExpression(x) -> (handle_code handle_expr x)
+  | OperationExpression(x) -> (handle_operation handle_expr x) ^ ";"
+  | AssignExpression(x) -> (handle_assign handle_expr x) ^ ";"
+  | IfExpression(x) -> handle_if handle_expr x
+  | WhileExpression(x) -> handle_while handle_expr x
+  | ForExpression(x) -> handle_for handle_expr x
+
+
+
 
 let handle_root f body = 
   handle_body f body
@@ -221,13 +254,13 @@ let rec explode = function
 let rec implode = function
     []       -> ""
   | charlist -> (String.make 1 (List.hd charlist)) ^
-                                  (implode (List.tl charlist));;
+                  (implode (List.tl charlist))
 
 let rec remove x =
   match x with
   | a :: (b :: c)  ->
     if a == '}' && b == ';' then a :: (remove c)
-        else a :: (remove (List.tl x))
+    else a :: (remove (List.tl x))
   | _ -> x
  
 (* Line handler.
@@ -297,9 +330,9 @@ let handle_top_root f body =
 
 let lga_of_file filename = 
   let root = ast_of_file Parser.root Scanner.token filename in
-  handle_top_root handle_expr root
+  handle_top_root handle_top_level_expr root
 
-let get_code_str filename =
+let js_of_file filename =
   let root = ast_of_file Parser.root Scanner.token filename in
   let b = handle_root handle_expr root in
-    implode (remove (explode b))
+  implode (remove (explode b))
