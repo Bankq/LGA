@@ -34,6 +34,5 @@ let _ =
   let indir = Sys.argv.(1) in
   let outdir = Sys.argv.(2) in
   test_dir test_file indir outdir
-  (*List.iter print_endline (string_list_of_input_file "test_scanner_in/test_obj.lga")*)
 
                        
