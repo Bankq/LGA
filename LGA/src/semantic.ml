@@ -87,6 +87,24 @@ let handle_line f a =
   | ExpressionLine(x) -> f x
   | StatementLine(x) -> handle_statement f x
 							
+let rec explode = function
+    "" -> []
+  | s  -> (String.get s 0) ::
+          explode (String.sub s 1 ((String.length s) - 1))
+
+let rec implode = function
+    []       -> ""
+  | charlist -> (String.make 1 (List.hd charlist)) ^
+                  (implode (List.tl charlist))
+
+let rec remove x =
+  match x with
+  | a :: (b :: c)  ->
+    if a == '}' && b == ';' then a :: (remove c)
+    else if a == ';' && b == ')' then b :: (remove c)
+    else a :: (remove (List.tl x))
+  | _ -> x
+
 let add_semicom = fun a -> 
   let len = String.length a in
     if a.[len-1] = '}' then a else a ^ ";"
@@ -96,7 +114,7 @@ let handle_body f a =
 
 let handle_parenthetical f a = 
   match a with
-  | Parenthetical(x) -> "(" ^ (handle_body f x) ^ ")"                      
+  | Parenthetical(x) -> implode (remove ( explode ("(" ^ (handle_body f x) ^ ")")))                      
 
 let handle_arguments f a = 
   "(" ^ (handle_arg_list f a) ^ ")"
@@ -202,14 +220,20 @@ let handle_for f a =
                     
 let rec handle_expr a = 
   match a with
-  | ValueExpression(x) -> handle_value handle_expr x
-  | InvocationExpression(x) -> handle_invocation handle_expr (handle_value handle_expr) x
-  | CodeExpression(x) -> handle_code handle_expr x
-  | OperationExpression(x) -> handle_operation handle_expr x
+  | ValueExpression(x) -> (handle_value handle_expr x)
+  | InvocationExpression(x) -> (handle_invocation handle_expr (handle_value handle_expr) x)
+  | CodeExpression(x) -> (handle_code handle_expr x)
+  | OperationExpression(x) -> (handle_operation handle_expr x)
   | AssignExpression(x) -> (handle_assign handle_expr x)
   | IfExpression(x) -> handle_if handle_expr x
   | WhileExpression(x) -> handle_while handle_expr x
   | ForExpression(x) -> handle_for handle_expr x
+
+let handle_expr_topLevel a = 
+  match a with
+  | AssignExpression(x) -> (handle_assign handle_expr x) ^ ";"
+  | _ -> handle_expr a
+
 
 let handle_root f body = 
   handle_body f body
@@ -298,7 +322,7 @@ let handle_top_root f body =
 
 let lga_of_file filename = 
   let root = ast_of_file Parser.root Scanner.token filename in
-  handle_top_root handle_expr root
+  handle_top_root handle_expr_topLevel root
 
 let js_of_file filename =
   let root = ast_of_file Parser.root Scanner.token filename in
