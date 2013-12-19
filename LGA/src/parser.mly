@@ -83,7 +83,8 @@ lop:
 	| invocation { InvocationLop($1) }
 
 code:
-	| FUN LPAREN paramList RPAREN ARROW block { Code($3, $6) }
+	| FUN LPAREN paramList RPAREN ARROW block { BlockCode($3, $6) }
+    | FUN LPAREN paramList RPAREN ARROW expression { ExpressionCode($3, $6) }
 
 value:
     | assignable { AssignableValue($1) }
