@@ -25,7 +25,7 @@ circle_translation = fun (frameCount) ->
 
 rect_rotation = fun (frameCount) ->
          frame = frameCount % 60
-         rect.rotation = frame * 60.0 / Math.PI
+         rect.rotation = frame * Math.PI / 60.0
 
 rect_translation = fun (frameCount) ->
             rect.translation.x = rect.translation.x + 1
