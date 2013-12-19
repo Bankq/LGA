@@ -71,7 +71,9 @@ type 'a block = 'a body
     
 type paramList = identifier list
 
-type 'a code = Code of paramList * 'a block
+type 'a code = 
+    BlockCode of paramList * 'a block
+  | ExpressionCode of paramList * 'a
 
 type 'a assign = Assign of ('a, 'a value) assignable * 'a
 

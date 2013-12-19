@@ -156,9 +156,12 @@ let handle_param_list a =
 
 let handle_code f a =
   match a with
-  | Code(x, y) -> let paraliststr = handle_param_list x in
+  | BlockCode(x, y) -> let paraliststr = handle_param_list x in
                     let blockstr = handle_block f y in
                     "function (" ^ paraliststr ^ ")\n{\n" ^ blockstr ^ "\n}"
+  | ExpressionCode(x, y) -> let paraliststr = handle_param_list x in
+                            let exprstr = f y in
+                            "function (" ^ paraliststr ^ ") { " ^ exprstr ^"}"
 
 
 let handle_assign f a = 
